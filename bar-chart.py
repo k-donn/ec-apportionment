@@ -1,0 +1,181 @@
+# TODO
+# 1. Add three other figures:
+#  i. Bar chart of number of representatives
+#  ii. Bar chart of priority nums
+#  iii. Maybe? Map of US highlighting active state
+# 2. Use list comprehension for the state_priority_nums calculation
+
+import math
+import csv
+import operator
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import matplotlib.ticker as ticker
+
+with open("state-populations.csv") as inp:
+    reader = csv.reader(inp)
+    state_pops_name = {rows[0]: int(rows[1]) for rows in reader}
+    state_names = list(state_pops_name.keys())
+    state_pops = list(state_pops_name.values())
+
+state_reps = [1] * 50
+state_reps_name = dict(zip(state_names, state_reps))
+
+state_people_per_seat = []
+for index, state in enumerate(state_names):
+    state_people_per_seat.append(state_pops[index] / state_reps[index])
+
+mean_people_per_seat = np.mean(state_people_per_seat)
+std_dev_people_per_seat = np.std(state_people_per_seat)
+state_priority_nums = []
+range_people_per_seat = 0
+
+y_pos = np.arange(len(state_names))
+x_pos = np.arange(len(state_names))
+
+fig = plt.figure()
+
+plt_1 = fig.add_subplot(221)
+plt_2 = fig.add_subplot(222)
+plt_3 = fig.add_subplot(223)
+plt_4 = fig.add_subplot(224)
+
+plt_1.text(0.0, 0.0, "/u/ilikeplanes86", transform=plt_1.transAxes)
+seat_txt = plt_1.text(0.25, 0.75, f"Seat# 1", transform=plt_1.transAxes)
+state_txt = plt_1.text(0.35, 0.85, "State: ", transform=plt_1.transAxes)
+mean_txt = plt_1.text(
+    0.45, 0.75, f"Mean: {mean_people_per_seat:,.2f}", transform=plt_1.transAxes)
+std_dev_txt = plt_1.text(
+    0.55, 0.85, f"Std. Dev. {std_dev_people_per_seat}", transform=plt_1.transAxes)
+range_txt = plt_1.text(
+    0.70, 0.75, f"Range: {range_people_per_seat}", transform=plt_1.transAxes)
+mean_line = plt_1.axhline(y=mean_people_per_seat,
+                          xmin=0.0, xmax=1.0, color="r")
+
+plt_1_bars = plt_1.bar(y_pos, state_people_per_seat,
+                       align="center", alpha=0.5)
+plt_1.set_xticks(x_pos)
+plt_1.set_xticklabels(state_names, rotation=77)
+
+plt_1.set_ylabel("People/Representative")
+plt_1.set_yscale("log")
+plt_1.get_yaxis().set_major_formatter(
+    ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+
+# CGP Grey Electoral College Spreadsheet graphed.
+plt_1.set_title("Progression of people per representative in each state.")
+
+# bar chart of number of reps
+plt_2.set_title("Number of representatives in each state")
+plt_2_bars = plt_2.bar(y_pos, state_reps, align="center", alpha=0.5, color="r")
+plt_2.set_xticks(x_pos)
+plt_2.set_xticklabels(state_names, rotation=77)
+
+plt_2.set_ylabel("Representatives")
+plt_2.set_ylim(60)
+# Y-axis gets flpped for some reason
+plt_2.invert_yaxis()
+
+# bar chart of prioritty nums
+for index, state in enumerate(state_names):
+    fut_state_reps = state_reps_name[state] + 1
+    state_priority_nums.append(
+        state_pops_name[state] * (1 / math.sqrt(fut_state_reps * (fut_state_reps - 1))))
+plt_3_bars = plt_3.bar(y_pos, state_priority_nums,
+                       align="center", alpha=0.5, color="g")
+plt_3.set_xticks(x_pos)
+plt_3.set_xticklabels(state_names, rotation=77)
+plt_3.set_title("Prioirity values or each state")
+
+plt_3.set_ylabel("Priority value")
+plt_3.set_yscale("log")
+plt_3.get_yaxis().set_major_formatter(
+    ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+plt_3.text(0.2, 0.9, "Highlighted, is the state with the highest priority value", transform=plt_3.transAxes)
+
+
+plt.subplots_adjust(top=0.964,
+                    bottom=0.138,
+                    left=0.064,
+                    right=0.986,
+                    hspace=0.456,
+                    wspace=0.072)
+
+
+def animate(frame):
+    if frame < 2:
+        return
+
+    print("-" * 45)
+    print(f"Seat# {frame}")
+
+    # Plot 1
+    state_priority_nums = []
+    for index, state in enumerate(state_names):
+        fut_state_reps = state_reps_name[state] + 1
+        state_priority_nums.append(
+            state_pops_name[state] * (1 / math.sqrt(fut_state_reps * (fut_state_reps - 1))))
+    state_priority_name = dict(zip(state_names, state_priority_nums))
+    print(f"Priority nums: {state_priority_name}")
+
+    max_state = max(state_priority_name.items(), key=operator.itemgetter(1))[0]
+    print(f"Highest priority num: {max_state}")
+
+    state_reps_name[max_state] = state_reps_name[max_state] + 1
+    print(f"State reps: {state_reps_name}")
+
+    state_people_per_seat = []
+    for index, state in enumerate(state_names):
+        state_people_per_seat.append(
+            state_pops[index] / state_reps_name[state])
+
+    mean_people_per_seat = np.mean(state_people_per_seat)
+    std_dev_people_per_seat = np.std(state_people_per_seat)
+    range_people_per_seat = max(state_priority_name.items(), key=operator.itemgetter(
+        1))[1] - min(state_priority_name.items(), key=operator.itemgetter(1))[1]
+
+    mean_line.set_xdata([0, 1.0])
+    mean_line.set_ydata([mean_people_per_seat])
+    mean_txt.set_text(f"Mean: {mean_people_per_seat:,.2f}")
+    std_dev_txt.set_text(f"Std. Dev.: {std_dev_people_per_seat:,.2f}")
+    range_txt.set_text(f"Range: {range_people_per_seat:,.2f}")
+
+    print(f"People per seat: {state_people_per_seat}")
+
+    seat_txt.set_text(f"Seat# {50 + frame}")
+    state_txt.set_text(f"State: {max_state}")
+
+    for bar, people_per_seat in zip(plt_1_bars, state_people_per_seat):
+        bar.set_height(people_per_seat)
+    # End Plot 1
+
+    # Plot 2
+    for bar, reps in zip(plt_2_bars, list(state_reps_name.values())):
+        bar.set_height(reps)
+
+    # End plot 2
+
+    # Plot 3
+    for bar, pritority_num in zip(plt_3_bars, state_priority_nums):
+        bar.set_color("g")
+        if pritority_num == state_priority_name[max_state]:
+            bar.set_height(pritority_num)
+            bar.set_color("r")
+        else:
+            bar.set_height(pritority_num)
+
+    # End plot 3
+
+    print("-" * 45)
+
+
+# account for frame zero
+frames = 386
+anim = animation.FuncAnimation(
+    fig, animate, repeat=False, blit=False, frames=frames, interval=190)
+
+figManager = plt.get_current_fig_manager()
+figManager.window.showMaximized()
+
+plt.show()
