@@ -1,9 +1,5 @@
 # TODO
-# 1. Add three other figures:
-#  i. Bar chart of number of representatives
-#  ii. Bar chart of priority nums
-#  iii. Maybe? Map of US highlighting active state
-# 2. Use list comprehension for the state_priority_nums calculation
+# 1. Use list comprehension for the state_priority_nums calculation
 
 import math
 import csv
@@ -40,6 +36,7 @@ plt_1 = fig.add_subplot(221)
 plt_2 = fig.add_subplot(222)
 plt_3 = fig.add_subplot(223)
 plt_4 = fig.add_subplot(224)
+#plt.text(0.5, 0.95, "CGP Grey Electoral College Spreadsheet graphed.", transform=plt.transAxes)
 
 plt_1.text(0.0, 0.0, "/u/ilikeplanes86", transform=plt_1.transAxes)
 seat_txt = plt_1.text(0.25, 0.75, f"Seat# 1", transform=plt_1.transAxes)
@@ -63,7 +60,6 @@ plt_1.set_yscale("log")
 plt_1.get_yaxis().set_major_formatter(
     ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-# CGP Grey Electoral College Spreadsheet graphed.
 plt_1.set_title("Progression of people per representative in each state.")
 
 # bar chart of number of reps
