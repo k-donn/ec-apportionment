@@ -1,6 +1,9 @@
 # TODO
 # 1. Add type signatures
 
+from typing import Type
+from matplotlib.axes._subplots import Axes
+from matplotlib.figure import Figure
 import math
 import csv
 import operator
@@ -30,13 +33,14 @@ range_people_per_seat = 0
 y_pos = np.arange(len(state_names))
 x_pos = np.arange(len(state_names))
 
-fig = plt.figure()
+fig: Type[Figure] = plt.figure()
 
-plt_1 = fig.add_subplot(221)
-plt_2 = fig.add_subplot(222)
-plt_3 = fig.add_subplot(223)
-plt_4 = fig.add_subplot(224)
-plt_4.text(0.5, 0.5, "CGP Grey Electoral College Spreadsheet graphed.", transform=plt_4.transAxes, fontsize=20, horizontalalignment="center")
+plt_1: Type[Axes] = fig.add_subplot(221)
+plt_2: Type[Axes] = fig.add_subplot(222)
+plt_3: Type[Axes] = fig.add_subplot(223)
+plt_4: Type[Axes] = fig.add_subplot(224)
+plt_4.text(0.5, 0.5, "CGP Grey Electoral College Spreadsheet graphed.",
+           transform=plt_4.transAxes, fontsize=20, horizontalalignment="center")
 
 plt_1.text(0.0, 0.0, "/u/ilikeplanes86", transform=plt_1.transAxes)
 seat_txt = plt_1.text(0.25, 0.75, f"Seat# 1", transform=plt_1.transAxes)
@@ -88,7 +92,8 @@ plt_3.set_ylabel("Priority value")
 plt_3.set_yscale("log")
 plt_3.get_yaxis().set_major_formatter(
     ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
-plt_3.text(0.3, 0.9, "Highlighted, is the state with the highest priority value", transform=plt_3.transAxes)
+plt_3.text(0.3, 0.9, "Highlighted, is the state with the highest priority value",
+           transform=plt_3.transAxes)
 
 
 plt.subplots_adjust(top=0.964,
