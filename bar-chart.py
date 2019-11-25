@@ -93,7 +93,7 @@ plt_3_bars: Type[BarContainer] = plt_3.bar(y_pos, state_priority_nums,
                                            align="center", alpha=0.5, color="g")
 plt_3.set_xticks(x_pos)
 plt_3.set_xticklabels(state_names, rotation=77)
-plt_3.set_title("Prioirity values for each state")
+plt_3.set_title("Priority values for each state")
 
 plt_3.set_ylabel("Priority value")
 plt_3.set_yscale("log")
