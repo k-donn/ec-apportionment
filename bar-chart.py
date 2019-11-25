@@ -1,9 +1,12 @@
 # TODO
 # 1. Add type signatures
 
-from typing import Type
+from typing import Type, Dict, List
 from matplotlib.axes._subplots import Axes
 from matplotlib.figure import Figure
+from matplotlib.backend_bases import FigureManagerBase
+from matplotlib.container import BarContainer
+from matplotlib.text import Text
 import math
 import csv
 import operator
@@ -18,17 +21,17 @@ with open("state-populations.csv") as inp:
     state_names = list(state_pops_name.keys())
     state_pops = list(state_pops_name.values())
 
-state_reps = [1] * 50
-state_reps_name = dict(zip(state_names, state_reps))
+state_reps: List[int] = [1] * 50
+state_reps_name: Type[Dict[str, int]] = dict(zip(state_names, state_reps))
 
-state_people_per_seat = []
+state_people_per_seat: List[float] = []
 for index, state in enumerate(state_names):
     state_people_per_seat.append(state_pops[index] / state_reps[index])
 
-mean_people_per_seat = np.mean(state_people_per_seat)
-std_dev_people_per_seat = np.std(state_people_per_seat)
-state_priority_nums = []
-range_people_per_seat = 0
+mean_people_per_seat: float = np.mean(state_people_per_seat)
+std_dev_people_per_seat: float = np.std(state_people_per_seat)
+state_priority_nums: List[float] = []
+range_people_per_seat: float = 0
 
 y_pos = np.arange(len(state_names))
 x_pos = np.arange(len(state_names))
@@ -43,19 +46,21 @@ plt_4.text(0.5, 0.5, "CGP Grey Electoral College Spreadsheet graphed.",
            transform=plt_4.transAxes, fontsize=20, horizontalalignment="center")
 
 plt_1.text(0.0, 0.0, "/u/ilikeplanes86", transform=plt_1.transAxes)
-seat_txt = plt_1.text(0.25, 0.75, f"Seat# 1", transform=plt_1.transAxes)
-state_txt = plt_1.text(0.35, 0.85, "State: ", transform=plt_1.transAxes)
-mean_txt = plt_1.text(
+seat_txt: Type[Text] = plt_1.text(
+    0.25, 0.75, f"Seat# 1", transform=plt_1.transAxes)
+state_txt: Type[Text] = plt_1.text(
+    0.35, 0.85, "State: ", transform=plt_1.transAxes)
+mean_txt: Type[Text] = plt_1.text(
     0.45, 0.75, f"Mean: {mean_people_per_seat:,.2f}", transform=plt_1.transAxes)
-std_dev_txt = plt_1.text(
+std_dev_txt: Type[Text] = plt_1.text(
     0.55, 0.85, f"Std. Dev. {std_dev_people_per_seat}", transform=plt_1.transAxes)
-range_txt = plt_1.text(
+range_txt: Type[Text] = plt_1.text(
     0.70, 0.75, f"Range: {range_people_per_seat}", transform=plt_1.transAxes)
 mean_line = plt_1.axhline(y=mean_people_per_seat,
                           xmin=0.0, xmax=1.0, color="r")
 
-plt_1_bars = plt_1.bar(y_pos, state_people_per_seat,
-                       align="center", alpha=0.5)
+plt_1_bars: Type[BarContainer] = plt_1.bar(y_pos, state_people_per_seat,
+                                           align="center", alpha=0.5)
 plt_1.set_xticks(x_pos)
 plt_1.set_xticklabels(state_names, rotation=77)
 
@@ -68,7 +73,8 @@ plt_1.set_title("Progression of people per representative in each state.")
 
 # bar chart of number of reps
 plt_2.set_title("Number of representatives in each state")
-plt_2_bars = plt_2.bar(y_pos, state_reps, align="center", alpha=0.5, color="r")
+plt_2_bars: Type[BarContainer] = plt_2.bar(
+    y_pos, state_reps, align="center", alpha=0.5, color="r")
 plt_2.set_xticks(x_pos)
 plt_2.set_xticklabels(state_names, rotation=77)
 
@@ -79,11 +85,11 @@ plt_2.invert_yaxis()
 
 # bar chart of prioritty nums
 for index, state in enumerate(state_names):
-    fut_state_reps = state_reps_name[state] + 1
+    fut_state_reps: int = state_reps_name[state] + 1
     state_priority_nums.append(
         state_pops_name[state] * (1 / math.sqrt(fut_state_reps * (fut_state_reps - 1))))
-plt_3_bars = plt_3.bar(y_pos, state_priority_nums,
-                       align="center", alpha=0.5, color="g")
+plt_3_bars: Type[BarContainer] = plt_3.bar(y_pos, state_priority_nums,
+                                           align="center", alpha=0.5, color="g")
 plt_3.set_xticks(x_pos)
 plt_3.set_xticklabels(state_names, rotation=77)
 plt_3.set_title("Prioirity values for each state")
@@ -172,11 +178,11 @@ def animate(frame):
 
 
 # account for frame zero
-frames = 386
+frames: int = 386
 anim = animation.FuncAnimation(
     fig, animate, repeat=False, blit=False, frames=frames, interval=190)
 
-figManager = plt.get_current_fig_manager()
+figManager: Type[FigureManagerBase] = plt.get_current_fig_manager()
 figManager.window.showMaximized()
 
 plt.show()
