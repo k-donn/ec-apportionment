@@ -1,5 +1,5 @@
 # TODO
-# 1. Use list comprehension for the state_priority_nums calculation
+# 1. Add type signatures
 
 import math
 import csv
@@ -36,7 +36,7 @@ plt_1 = fig.add_subplot(221)
 plt_2 = fig.add_subplot(222)
 plt_3 = fig.add_subplot(223)
 plt_4 = fig.add_subplot(224)
-#plt.text(0.5, 0.95, "CGP Grey Electoral College Spreadsheet graphed.", transform=plt.transAxes)
+plt_4.text(0.5, 0.5, "CGP Grey Electoral College Spreadsheet graphed.", transform=plt_4.transAxes, fontsize=20, horizontalalignment="center")
 
 plt_1.text(0.0, 0.0, "/u/ilikeplanes86", transform=plt_1.transAxes)
 seat_txt = plt_1.text(0.25, 0.75, f"Seat# 1", transform=plt_1.transAxes)
@@ -82,13 +82,13 @@ plt_3_bars = plt_3.bar(y_pos, state_priority_nums,
                        align="center", alpha=0.5, color="g")
 plt_3.set_xticks(x_pos)
 plt_3.set_xticklabels(state_names, rotation=77)
-plt_3.set_title("Prioirity values or each state")
+plt_3.set_title("Prioirity values for each state")
 
 plt_3.set_ylabel("Priority value")
 plt_3.set_yscale("log")
 plt_3.get_yaxis().set_major_formatter(
     ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
-plt_3.text(0.2, 0.9, "Highlighted, is the state with the highest priority value", transform=plt_3.transAxes)
+plt_3.text(0.3, 0.9, "Highlighted, is the state with the highest priority value", transform=plt_3.transAxes)
 
 
 plt.subplots_adjust(top=0.964,
