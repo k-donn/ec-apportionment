@@ -7,6 +7,7 @@ from matplotlib.figure import Figure
 from matplotlib.backend_bases import FigureManagerBase
 from matplotlib.container import BarContainer
 from matplotlib.text import Text
+from matplotlib.animation import Animation
 import math
 import csv
 import operator
@@ -110,7 +111,7 @@ plt.subplots_adjust(top=0.964,
                     wspace=0.072)
 
 
-def animate(frame):
+def animate(frame: int) -> None:
     if frame < 2:
         return
 
@@ -179,7 +180,7 @@ def animate(frame):
 
 # account for frame zero
 frames: int = 386
-anim = animation.FuncAnimation(
+anim: Animation = animation.FuncAnimation(
     fig, animate, repeat=False, blit=False, frames=frames, interval=190)
 
 figManager: Type[FigureManagerBase] = plt.get_current_fig_manager()
