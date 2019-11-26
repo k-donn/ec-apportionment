@@ -129,21 +129,16 @@ def animate(frame: int) -> None:
     if frame < 2:
         return
 
-    print("-" * 45)
-    print(f"Seat# {frame}")
 
     # Plot 1
     state_priority_nums = calc_priority_nums(
         state_names, state_reps_name, state_pops_name)
     state_priority_name = dict(zip(state_names, state_priority_nums))
-    print(f"Priority nums: {state_priority_name}")
 
     max_state = max(state_priority_name.items(),
                          key=operator.itemgetter(1))[0]
-    print(f"Highest priority num: {max_state}")
 
     state_reps_name[max_state] = state_reps_name[max_state] + 1
-    print(f"State reps: {state_reps_name}")
 
     state_people_per_seat = []
     state_people_per_seat = calc_state_people_per_seat(
@@ -160,14 +155,13 @@ def animate(frame: int) -> None:
     std_dev_txt.set_text(f"Std. Dev.: {std_dev_people_per_seat:,.2f}")
     range_txt.set_text(f"Range: {range_people_per_seat:,.2f}")
 
-    print(f"People per seat: {dict(zip(state_names, state_people_per_seat))}")
 
     seat_txt.set_text(f"Seat# {50 + frame}")
     state_txt.set_text(f"State: {max_state}")
 
     for bar, people_per_seat in zip(plt_1_bars, state_people_per_seat):
         bar.set_height(people_per_seat)
-        
+
     # End Plot 1
 
     # Plot 2
@@ -187,7 +181,16 @@ def animate(frame: int) -> None:
 
     # End plot 3
 
-    print("-" * 45)
+    print("-" * 60)
+    print(f"Seat# {frame}")
+    print(f"Highest priority num: {max_state}")
+    print("-" * 30)
+    print(f"Priority nums: {state_priority_name}")
+    print("-" * 30)
+    print(f"State reps: {state_reps_name}")
+    print("-" * 30)
+    print(f"People per seat: {dict(zip(state_names, state_people_per_seat))}")
+    print("-" * 60)
 
 
 # account for frame zero
