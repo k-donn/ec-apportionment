@@ -26,13 +26,28 @@ with open("state-populations.csv") as inp:
 state_reps: List[int] = [1] * 50
 state_reps_name: Type[Dict[str, int]] = dict(zip(state_names, state_reps))
 
+
+def calc_state_people_per_seat(state_pops: List[float], state_reps: List[int]) -> List[float]:
+    return [pop / reps for pop,
+            reps in dict(zip(state_pops, state_reps)).items()]
+
+
+def calc_priority_nums(state_names: List[str], state_reps_name: Type[Dict[str, int]], state_pops_name: Type[Dict[str, int]]) -> List[float]:
+    res: List[float] = []
+    for state in state_names:
+        fut_state_reps: int = state_reps_name[state] + 1
+        res.append(
+            state_pops_name[state] * (1 / math.sqrt(fut_state_reps * (fut_state_reps - 1))))
+    return res
+
+
 state_people_per_seat: List[float] = []
-for index, state in enumerate(state_names):
-    state_people_per_seat.append(state_pops[index] / state_reps[index])
+state_people_per_seat = calc_state_people_per_seat(state_pops, state_reps)
 
 mean_people_per_seat: float = np.mean(state_people_per_seat)
 std_dev_people_per_seat: float = np.std(state_people_per_seat)
-state_priority_nums: List[float] = []
+state_priority_nums: List[float] = calc_priority_nums(
+    state_names, state_reps_name, state_pops_name)
 range_people_per_seat: float = 0
 
 y_pos = np.arange(len(state_names))
@@ -59,7 +74,8 @@ std_dev_txt: Type[Text] = plt_1.text(
 range_txt: Type[Text] = plt_1.text(
     0.70, 0.75, f"Range: {range_people_per_seat}", transform=plt_1.transAxes)
 mean_line: Type[Line2D] = plt_1.axhline(y=mean_people_per_seat,
-                          xmin=0.0, xmax=1.0, color="r")
+                                        xmin=0.0, xmax=1.0, color="r")
+
 
 plt_1_bars: Type[BarContainer] = plt_1.bar(y_pos, state_people_per_seat,
                                            align="center", alpha=0.5)
@@ -85,11 +101,7 @@ plt_2.set_ylim(60)
 # Y-axis gets flpped for some reason
 plt_2.invert_yaxis()
 
-# bar chart of prioritty nums
-for index, state in enumerate(state_names):
-    fut_state_reps: int = state_reps_name[state] + 1
-    state_priority_nums.append(
-        state_pops_name[state] * (1 / math.sqrt(fut_state_reps * (fut_state_reps - 1))))
+
 plt_3_bars: Type[BarContainer] = plt_3.bar(y_pos, state_priority_nums,
                                            align="center", alpha=0.5, color="g")
 plt_3.set_xticks(x_pos)
@@ -120,29 +132,26 @@ def animate(frame: int) -> None:
     print(f"Seat# {frame}")
 
     # Plot 1
-    state_priority_nums = []
-    for index, state in enumerate(state_names):
-        fut_state_reps = state_reps_name[state] + 1
-        state_priority_nums.append(
-            state_pops_name[state] * (1 / math.sqrt(fut_state_reps * (fut_state_reps - 1))))
+    state_priority_nums = calc_priority_nums(
+        state_names, state_reps_name, state_pops_name)
     state_priority_name = dict(zip(state_names, state_priority_nums))
     print(f"Priority nums: {state_priority_name}")
 
-    max_state: str = max(state_priority_name.items(), key=operator.itemgetter(1))[0]
+    max_state: str = max(state_priority_name.items(),
+                         key=operator.itemgetter(1))[0]
     print(f"Highest priority num: {max_state}")
 
     state_reps_name[max_state] = state_reps_name[max_state] + 1
     print(f"State reps: {state_reps_name}")
 
     state_people_per_seat = []
-    for index, state in enumerate(state_names):
-        state_people_per_seat.append(
-            state_pops[index] / state_reps_name[state])
+    state_people_per_seat = calc_state_people_per_seat(
+        state_pops, list(state_reps_name.values()))
 
     mean_people_per_seat = np.mean(state_people_per_seat)
     std_dev_people_per_seat = np.std(state_people_per_seat)
-    range_people_per_seat = max(state_priority_name.items(), key=operator.itemgetter(
-        1))[1] - min(state_priority_name.items(), key=operator.itemgetter(1))[1]
+    range_people_per_seat = max(
+        state_people_per_seat) - min(state_people_per_seat)
 
     mean_line.set_xdata([0, 1.0])
     mean_line.set_ydata([mean_people_per_seat])
@@ -150,7 +159,7 @@ def animate(frame: int) -> None:
     std_dev_txt.set_text(f"Std. Dev.: {std_dev_people_per_seat:,.2f}")
     range_txt.set_text(f"Range: {range_people_per_seat:,.2f}")
 
-    print(f"People per seat: {state_people_per_seat}")
+    print(f"People per seat: {dict(zip(state_names, state_people_per_seat))}")
 
     seat_txt.set_text(f"Seat# {50 + frame}")
     state_txt.set_text(f"State: {max_state}")
