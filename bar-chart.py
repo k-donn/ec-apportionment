@@ -8,6 +8,7 @@ from matplotlib.backend_bases import FigureManagerBase
 from matplotlib.container import BarContainer
 from matplotlib.text import Text
 from matplotlib.animation import Animation
+from matplotlib.lines import Line2D
 import math
 import csv
 import operator
@@ -19,8 +20,8 @@ import matplotlib.ticker as ticker
 with open("state-populations.csv") as inp:
     reader = csv.reader(inp)
     state_pops_name = {rows[0]: int(rows[1]) for rows in reader}
-    state_names = list(state_pops_name.keys())
-    state_pops = list(state_pops_name.values())
+    state_names: List[str] = list(state_pops_name.keys())
+    state_pops: List[int] = list(state_pops_name.values())
 
 state_reps: List[int] = [1] * 50
 state_reps_name: Type[Dict[str, int]] = dict(zip(state_names, state_reps))
@@ -57,7 +58,7 @@ std_dev_txt: Type[Text] = plt_1.text(
     0.55, 0.85, f"Std. Dev. {std_dev_people_per_seat}", transform=plt_1.transAxes)
 range_txt: Type[Text] = plt_1.text(
     0.70, 0.75, f"Range: {range_people_per_seat}", transform=plt_1.transAxes)
-mean_line = plt_1.axhline(y=mean_people_per_seat,
+mean_line: Type[Line2D] = plt_1.axhline(y=mean_people_per_seat,
                           xmin=0.0, xmax=1.0, color="r")
 
 plt_1_bars: Type[BarContainer] = plt_1.bar(y_pos, state_people_per_seat,
@@ -127,7 +128,7 @@ def animate(frame: int) -> None:
     state_priority_name = dict(zip(state_names, state_priority_nums))
     print(f"Priority nums: {state_priority_name}")
 
-    max_state = max(state_priority_name.items(), key=operator.itemgetter(1))[0]
+    max_state: str = max(state_priority_name.items(), key=operator.itemgetter(1))[0]
     print(f"Highest priority num: {max_state}")
 
     state_reps_name[max_state] = state_reps_name[max_state] + 1
