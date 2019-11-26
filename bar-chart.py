@@ -19,7 +19,7 @@ import matplotlib.ticker as ticker
 
 with open("state-populations.csv") as inp:
     reader = csv.reader(inp)
-    state_pops_name = {rows[0]: int(rows[1]) for rows in reader}
+    state_pops_name: Type[Dict[str, int]] = {rows[0]: int(rows[1]) for rows in reader}
     state_names: List[str] = list(state_pops_name.keys())
     state_pops: List[int] = list(state_pops_name.values())
 
@@ -44,6 +44,7 @@ def calc_priority_nums(state_names: List[str], state_reps_name: Type[Dict[str, i
 state_people_per_seat: List[float] = []
 state_people_per_seat = calc_state_people_per_seat(state_pops, state_reps)
 
+max_state: str = ""
 mean_people_per_seat: float = np.mean(state_people_per_seat)
 std_dev_people_per_seat: float = np.std(state_people_per_seat)
 state_priority_nums: List[float] = calc_priority_nums(
@@ -137,7 +138,7 @@ def animate(frame: int) -> None:
     state_priority_name = dict(zip(state_names, state_priority_nums))
     print(f"Priority nums: {state_priority_name}")
 
-    max_state: str = max(state_priority_name.items(),
+    max_state = max(state_priority_name.items(),
                          key=operator.itemgetter(1))[0]
     print(f"Highest priority num: {max_state}")
 
@@ -166,6 +167,7 @@ def animate(frame: int) -> None:
 
     for bar, people_per_seat in zip(plt_1_bars, state_people_per_seat):
         bar.set_height(people_per_seat)
+        
     # End Plot 1
 
     # Plot 2
