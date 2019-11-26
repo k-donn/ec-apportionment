@@ -19,7 +19,8 @@ import matplotlib.ticker as ticker
 
 with open("state-populations.csv") as inp:
     reader = csv.reader(inp)
-    state_pops_name: Type[Dict[str, int]] = {rows[0]: int(rows[1]) for rows in reader}
+    state_pops_name: Type[Dict[str, int]] = {
+        rows[0]: int(rows[1]) for rows in reader}
     state_names: List[str] = list(state_pops_name.keys())
     state_pops: List[int] = list(state_pops_name.values())
 
@@ -129,14 +130,13 @@ def animate(frame: int) -> None:
     if frame < 2:
         return
 
-
     # Plot 1
     state_priority_nums = calc_priority_nums(
         state_names, state_reps_name, state_pops_name)
     state_priority_name = dict(zip(state_names, state_priority_nums))
 
     max_state = max(state_priority_name.items(),
-                         key=operator.itemgetter(1))[0]
+                    key=operator.itemgetter(1))[0]
 
     state_reps_name[max_state] = state_reps_name[max_state] + 1
 
@@ -154,7 +154,6 @@ def animate(frame: int) -> None:
     mean_txt.set_text(f"Mean: {mean_people_per_seat:,.2f}")
     std_dev_txt.set_text(f"Std. Dev.: {std_dev_people_per_seat:,.2f}")
     range_txt.set_text(f"Range: {range_people_per_seat:,.2f}")
-
 
     seat_txt.set_text(f"Seat# {50 + frame}")
     state_txt.set_text(f"State: {max_state}")
