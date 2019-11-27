@@ -1,5 +1,5 @@
 # TODO
-# 1. Add type signatures
+# 1. 
 
 from typing import Type, Dict, List
 from matplotlib.axes._subplots import Axes
@@ -92,7 +92,6 @@ plt_1.get_yaxis().set_major_formatter(
 plt_1.set_title("Progression of people per representative in each state.")
 
 # bar chart of number of reps
-plt_2.set_title("Number of representatives in each state")
 plt_2_bars: Type[BarContainer] = plt_2.bar(
     y_pos, state_reps, align="center", alpha=0.5, color="r")
 plt_2.set_xticks(x_pos)
@@ -103,12 +102,12 @@ plt_2.set_ylim(60)
 # Y-axis gets flpped for some reason
 plt_2.invert_yaxis()
 
+plt_2.set_title("Number of representatives in each state")
 
 plt_3_bars: Type[BarContainer] = plt_3.bar(y_pos, state_priority_nums,
                                            align="center", alpha=0.5, color="g")
 plt_3.set_xticks(x_pos)
 plt_3.set_xticklabels(state_names, rotation=77)
-plt_3.set_title("Priority values for each state")
 
 plt_3.set_ylabel("Priority value")
 plt_3.set_yscale("log")
@@ -117,6 +116,7 @@ plt_3.get_yaxis().set_major_formatter(
 plt_3.text(0.3, 0.9, "Highlighted, is the state with the highest priority value",
            transform=plt_3.transAxes)
 
+plt_3.set_title("Priority values for each state")
 
 plt.subplots_adjust(top=0.964,
                     bottom=0.138,
