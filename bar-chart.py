@@ -1,5 +1,5 @@
 # TODO
-# 1. 
+# 1. Add geometric mean calculation
 
 from typing import Type, Dict, List
 from matplotlib.axes._subplots import Axes
@@ -9,6 +9,7 @@ from matplotlib.container import BarContainer
 from matplotlib.text import Text
 from matplotlib.animation import Animation
 from matplotlib.lines import Line2D
+from scipy.stats.mstats import gmean
 import math
 import csv
 import operator
@@ -42,15 +43,21 @@ def calc_priority_nums(state_names: List[str], state_reps_name: Type[Dict[str, i
     return res
 
 
+def calc_geo_mean(iterable):
+    a = np.log(iterable)
+    return np.exp(a.sum()/len(a))
+
+
 state_people_per_seat: List[float] = []
 state_people_per_seat = calc_state_people_per_seat(state_pops, state_reps)
 
 max_state: str = ""
 mean_people_per_seat: float = np.mean(state_people_per_seat)
 std_dev_people_per_seat: float = np.std(state_people_per_seat)
+range_people_per_seat: float = 0
+geo_mean_people_per_seat: float = calc_geo_mean(state_people_per_seat)
 state_priority_nums: List[float] = calc_priority_nums(
     state_names, state_reps_name, state_pops_name)
-range_people_per_seat: float = 0
 
 y_pos = np.arange(len(state_names))
 x_pos = np.arange(len(state_names))
@@ -68,13 +75,15 @@ plt_1.text(0.0, 0.0, "/u/ilikeplanes86", transform=plt_1.transAxes)
 seat_txt: Type[Text] = plt_1.text(
     0.25, 0.75, f"Seat# 1", transform=plt_1.transAxes)
 state_txt: Type[Text] = plt_1.text(
-    0.35, 0.85, "State: ", transform=plt_1.transAxes)
+    0.15, 0.85, "State: ", transform=plt_1.transAxes)
 mean_txt: Type[Text] = plt_1.text(
     0.45, 0.75, f"Mean: {mean_people_per_seat:,.2f}", transform=plt_1.transAxes)
 std_dev_txt: Type[Text] = plt_1.text(
-    0.55, 0.85, f"Std. Dev. {std_dev_people_per_seat}", transform=plt_1.transAxes)
+    0.35, 0.85, f"Std. Dev. {std_dev_people_per_seat}", transform=plt_1.transAxes)
 range_txt: Type[Text] = plt_1.text(
     0.70, 0.75, f"Range: {range_people_per_seat}", transform=plt_1.transAxes)
+geo_mean_txt: Type[Text] = plt_1.text(
+    0.6, 0.85, f"Geo. Mean: {geo_mean_people_per_seat}", transform=plt_1.transAxes)
 mean_line: Type[Line2D] = plt_1.axhline(y=mean_people_per_seat,
                                         xmin=0.0, xmax=1.0, color="r")
 
@@ -143,17 +152,20 @@ def animate(frame: int) -> None:
     state_people_per_seat = []
     state_people_per_seat = calc_state_people_per_seat(
         state_pops, list(state_reps_name.values()))
+    state_people_per_seat_name = dict(zip(state_names, state_people_per_seat))
 
     mean_people_per_seat = np.mean(state_people_per_seat)
     std_dev_people_per_seat = np.std(state_people_per_seat)
     range_people_per_seat = max(
         state_people_per_seat) - min(state_people_per_seat)
+    geo_mean_people_per_seat = calc_geo_mean(state_people_per_seat)
 
     mean_line.set_xdata([0, 1.0])
     mean_line.set_ydata([mean_people_per_seat])
     mean_txt.set_text(f"Mean: {mean_people_per_seat:,.2f}")
     std_dev_txt.set_text(f"Std. Dev.: {std_dev_people_per_seat:,.2f}")
     range_txt.set_text(f"Range: {range_people_per_seat:,.2f}")
+    geo_mean_txt.set_text(f"Geo. Mean: {geo_mean_people_per_seat:,.2f}")
 
     seat_txt.set_text(f"Seat# {50 + frame}")
     state_txt.set_text(f"State: {max_state}")
@@ -188,14 +200,14 @@ def animate(frame: int) -> None:
     print("-" * 30)
     print(f"State reps: {state_reps_name}")
     print("-" * 30)
-    print(f"People per seat: {dict(zip(state_names, state_people_per_seat))}")
+    print(f"People per seat: {state_people_per_seat_name}")
     print("-" * 60)
 
 
 # account for frame zero
 frames: int = 386
 anim: Animation = animation.FuncAnimation(
-    fig, animate, repeat=False, blit=False, frames=frames, interval=190)
+    fig, animate,  repeat=False, blit=False, frames=frames)
 
 figManager: Type[FigureManagerBase] = plt.get_current_fig_manager()
 figManager.window.showMaximized()
