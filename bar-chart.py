@@ -1,11 +1,11 @@
 # TODO
-# 1. Add geometric mean calculation
+#
 
 from typing import Type, Dict, List
 from matplotlib.axes._subplots import Axes
 from matplotlib.figure import Figure
-from matplotlib.backend_bases import FigureManagerBase
 from matplotlib.container import BarContainer
+from matplotlib.backends.backend_qt5 import FigureManagerQT
 from matplotlib.text import Text
 from matplotlib.animation import Animation
 from matplotlib.lines import Line2D
@@ -17,6 +17,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib.ticker as ticker
+import matplotlib
+
+matplotlib.use("Qt5Agg")
 
 with open("state-populations.csv") as inp:
     reader = csv.reader(inp)
@@ -207,9 +210,10 @@ def animate(frame: int) -> None:
 # account for frame zero
 frames: int = 386
 anim: Animation = animation.FuncAnimation(
-    fig, animate,  repeat=False, blit=False, frames=frames)
+    fig, animate, repeat=False, blit=False, frames=frames)
 
-figManager: Type[FigureManagerBase] = plt.get_current_fig_manager()
+figManager: Type[FigureManagerQT] = plt.get_current_fig_manager()
 figManager.window.showMaximized()
+figManager.set_window_title("CGP Grey Electoral College speadsheet animated")
 
 plt.show()
