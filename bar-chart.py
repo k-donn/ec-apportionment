@@ -207,13 +207,18 @@ def animate(frame: int) -> None:
     print("-" * 60)
 
 
+Writer = animation.writers['ffmpeg']
+writer = Writer(fps=15, metadata=dict(artist='/u/ilikeplanes86'), bitrate=1800)
+
 # account for frame zero
 frames: int = 386
 anim: Animation = animation.FuncAnimation(
-    fig, animate, repeat=False, blit=False, frames=frames)
+    fig, animate, repeat=False, blit=False, frames=frames, interval=10)
+
 
 figManager: Type[FigureManagerQT] = plt.get_current_fig_manager()
 figManager.window.showMaximized()
 figManager.set_window_title("CGP Grey Electoral College speadsheet animated")
 
 plt.show()
+# anim.save("bar-chart-autorecord.mp4", writer=writer)
