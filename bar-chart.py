@@ -1,5 +1,5 @@
 # TODO
-# Move plotting into funcs
+# Add animation func
 
 from typing import Type, Dict, List
 from matplotlib.axes._subplots import Axes
@@ -56,25 +56,9 @@ def calc_geo_mean(iterable):
     return np.exp(a.sum()/len(a))
 
 
-# seat_txt: Type[Text] = plt_1.text(
-#     0.25, 0.75, f"Seat# 1", transform=plt_1.transAxes)
-# state_txt: Type[Text] = plt_1.text(
-#     0.15, 0.85, "State: ", transform=plt_1.transAxes)
-# mean_txt: Type[Text] = plt_1.text(
-#     0.45, 0.75, f"Mean: {mean_people_per_seat:,.2f}", transform=plt_1.transAxes)
-# std_dev_txt: Type[Text] = plt_1.text(
-#     0.35, 0.85, f"Std. Dev. {std_dev_people_per_seat}", transform=plt_1.transAxes)
-# range_txt: Type[Text] = plt_1.text(
-#     0.70, 0.75, f"Range: {range_people_per_seat}", transform=plt_1.transAxes)
-# geo_mean_txt: Type[Text] = plt_1.text(
-#     0.6, 0.85, f"Geo. Mean: {geo_mean_people_per_seat}", transform=plt_1.transAxes)
-# mean_line: Type[Line2D] = plt_1.axhline(y=mean_people_per_seat,
-#                                         xmin=0.0, xmax=1.0, color="r")
-
-
 # bar chart of pop_per_rep
-def format_plot_1(plt_1, x_vals, y_vals, state_names):
-    plt_1_bars: Type[BarContainer] = plt_1.bar(x_vals, y_vals,
+def format_plot_1(plt_1, x_vals, pop_per_rep_list, state_names):
+    plt_1_bars: Type[BarContainer] = plt_1.bar(x_vals, pop_per_rep_list,
                                                align="center", alpha=0.5)
     plt_1.set_xticks(x_vals)
     plt_1.set_xticklabels(state_names, rotation=77)
@@ -86,15 +70,36 @@ def format_plot_1(plt_1, x_vals, y_vals, state_names):
 
     plt_1.set_title("Progression of people per representative in each state.")
 
+    mean_pop_per_seat: float = np.mean(pop_per_rep_list)
+    std_dev_pop_per_seat: float = np.std(pop_per_rep_list)
+    range_pop_per_seat: float = max(
+        pop_per_rep_list) - min(pop_per_rep_list)
+    geo_mean_pop_per_seat: float = calc_geo_mean(pop_per_rep_list)
+
+    seat_txt: Type[Text] = plt_1.text(
+        0.25, 0.75, f"Seat# 1", transform=plt_1.transAxes)
+    state_txt: Type[Text] = plt_1.text(
+        0.15, 0.85, "State: ", transform=plt_1.transAxes)
+    mean_txt: Type[Text] = plt_1.text(
+        0.45, 0.75, f"Mean: {mean_pop_per_seat:,.2f}", transform=plt_1.transAxes)
+    std_dev_txt: Type[Text] = plt_1.text(
+        0.35, 0.85, f"Std. Dev. {std_dev_pop_per_seat}", transform=plt_1.transAxes)
+    range_txt: Type[Text] = plt_1.text(
+        0.70, 0.75, f"Range: {range_pop_per_seat}", transform=plt_1.transAxes)
+    geo_mean_txt: Type[Text] = plt_1.text(
+        0.6, 0.85, f"Geo. Mean: {geo_mean_pop_per_seat}", transform=plt_1.transAxes)
+    mean_line: Type[Line2D] = plt_1.axhline(y=mean_pop_per_seat,
+                                            xmin=0.0, xmax=1.0, color="r")
+
     plt_1.text(0.0, 0.0, "/u/ilikeplanes86", transform=plt_1.transAxes)
 
-    return plt_1_bars
+    return (plt_1_bars, (seat_txt, state_txt, mean_txt, std_dev_txt, range_txt, geo_mean_txt, mean_line))
 
 
 # bar chart of number of reps
-def format_plot_2(plt_2, x_vals, y_vals, state_names):
+def format_plot_2(plt_2, x_vals, reps_list, state_names):
     plt_2_bars: Type[BarContainer] = plt_2.bar(
-        x_vals, y_vals, align="center", alpha=0.5, color="r")
+        x_vals, reps_list, align="center", alpha=0.5, color="r")
     plt_2.set_xticks(x_vals)
     plt_2.set_xticklabels(state_names, rotation=77)
 
@@ -109,8 +114,8 @@ def format_plot_2(plt_2, x_vals, y_vals, state_names):
 
 
 # bar chart of priority nums
-def format_plot_3(plt_3, x_vals, y_vals, state_names):
-    plt_3_bars: Type[BarContainer] = plt_3.bar(x_vals, y_vals,
+def format_plot_3(plt_3, x_vals, priority_list, state_names):
+    plt_3_bars: Type[BarContainer] = plt_3.bar(x_vals, priority_list,
                                                align="center", alpha=0.5, color="g")
     plt_3.set_xticks(x_vals)
     plt_3.set_xticklabels(state_names, rotation=77)
@@ -158,12 +163,6 @@ if __name__ == "__main__":
     reps_list = list(map(operator.itemgetter("reps"), state_info))
     priority_list = list(map(operator.itemgetter("priority"), state_info))
 
-    mean_people_per_seat: float = np.mean(pop_per_rep_list)
-    std_dev_people_per_seat: float = np.std(pop_per_rep_list)
-    range_people_per_seat: float = max(
-        pop_per_rep_list) - min(pop_per_rep_list)
-    geo_mean_people_per_seat: float = calc_geo_mean(pop_per_rep_list)
-
     fig: Type[Figure] = plt.figure()
 
     plt_1: Type[Axes] = fig.add_subplot(221)
@@ -183,7 +182,7 @@ if __name__ == "__main__":
     # writer = Writer(fps=15, metadata=dict(artist='/u/ilikeplanes86'), bitrate=1800)
 
     # account for frame zero
-    frames: int = 386
+    # frames: int = 386
     # anim: Animation = animation.FuncAnimation(
     #     fig, animate, repeat=False, blit=False, frames=frames, interval=10)
 
