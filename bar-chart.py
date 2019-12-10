@@ -11,7 +11,6 @@ from matplotlib.animation import Animation
 from matplotlib.lines import Line2D
 from scipy.stats.mstats import gmean
 import math
-import csv
 import operator
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,31 +18,39 @@ import matplotlib.animation as animation
 import matplotlib.ticker as ticker
 import matplotlib
 
+
+import csv
+
+
+def extract_csv():
+    with open("state-populations.csv") as inp:
+        reader = csv.reader(inp)
+        return list(reader)
+
+
+def parse_states(raw_csv):
+    max_priority = 0
+    state_info_list = []
+    for row in raw_csv:
+        state_info = {}
+        is_max = False
+        state_info["name"] = row[0]
+        state_info["pop"] = int(row[1])
+        state_info["reps"] = 1
+        state_info["pop_per_rep"] = state_info["pop"] / \
+            state_info["reps"]
+        fut_reps = state_info["reps"] + 1
+        state_info["priority"] = state_info["pop"] * \
+            (1 / math.sqrt(fut_reps * (fut_reps - 1)))
+        if state_info["priority"] > max_priority:
+            max_priority = state_info["priority"]
+            is_max = True
+        state_info["max_pri"] = is_max
+        state_info_list.append(state_info)
+    return state_info_list
+
+
 matplotlib.use("Qt5Agg")
-
-with open("state-populations.csv") as inp:
-    reader = csv.reader(inp)
-    state_pops_name: Type[Dict[str, int]] = {
-        rows[0]: int(rows[1]) for rows in reader}
-    state_names: List[str] = list(state_pops_name.keys())
-    state_pops: List[int] = list(state_pops_name.values())
-
-state_reps: List[int] = [1] * 50
-state_reps_name: Type[Dict[str, int]] = dict(zip(state_names, state_reps))
-
-
-def calc_state_people_per_seat(state_pops: List[float], state_reps: List[int]) -> List[float]:
-    return [pop / reps for pop,
-            reps in dict(zip(state_pops, state_reps)).items()]
-
-
-def calc_priority_nums(state_names: List[str], state_reps_name: Type[Dict[str, int]], state_pops_name: Type[Dict[str, int]]) -> List[float]:
-    res: List[float] = []
-    for state in state_names:
-        fut_state_reps: int = state_reps_name[state] + 1
-        res.append(
-            state_pops_name[state] * (1 / math.sqrt(fut_state_reps * (fut_state_reps - 1))))
-    return res
 
 
 def calc_geo_mean(iterable):
@@ -51,19 +58,19 @@ def calc_geo_mean(iterable):
     return np.exp(a.sum()/len(a))
 
 
-state_people_per_seat: List[float] = []
-state_people_per_seat = calc_state_people_per_seat(state_pops, state_reps)
+rows = extract_csv()
+state_info = parse_states(rows)
 
-max_state: str = ""
-mean_people_per_seat: float = np.mean(state_people_per_seat)
-std_dev_people_per_seat: float = np.std(state_people_per_seat)
-range_people_per_seat: float = 0
-geo_mean_people_per_seat: float = calc_geo_mean(state_people_per_seat)
-state_priority_nums: List[float] = calc_priority_nums(
-    state_names, state_reps_name, state_pops_name)
 
-y_pos = np.arange(len(state_names))
-x_pos = np.arange(len(state_names))
+max_state: str = max(state_info, key=lambda v: v["priority"])["name"]
+pop_per_rep_list = list(map(operator.itemgetter("pop_per_rep"), state_info))
+mean_people_per_seat: float = np.mean(pop_per_rep_list)
+std_dev_people_per_seat: float = np.std(pop_per_rep_list)
+range_people_per_seat: float = max(pop_per_rep_list) - min(pop_per_rep_list)
+geo_mean_people_per_seat: float = calc_geo_mean(pop_per_rep_list)
+
+y_pos = np.arange(len(state_info))
+x_pos = np.arange(len(state_info))
 
 fig: Type[Figure] = plt.figure()
 
@@ -142,69 +149,70 @@ def animate(frame: int) -> None:
     if frame < 2:
         return
 
+    
     # Plot 1
-    state_priority_nums = calc_priority_nums(
-        state_names, state_reps_name, state_pops_name)
-    state_priority_name = dict(zip(state_names, state_priority_nums))
+    # state_priority_nums = calc_priority_nums(
+    #     state_names, state_reps_name, state_pops_name)
+    # state_priority_name = dict(zip(state_names, state_priority_nums))
 
-    max_state = max(state_priority_name.items(),
-                    key=operator.itemgetter(1))[0]
+    # max_state = max(state_priority_name.items(),
+    #                 key=operator.itemgetter(1))[0]
 
-    state_reps_name[max_state] = state_reps_name[max_state] + 1
+    # state_reps_name[max_state] = state_reps_name[max_state] + 1
 
-    state_people_per_seat = []
-    state_people_per_seat = calc_state_people_per_seat(
-        state_pops, list(state_reps_name.values()))
-    state_people_per_seat_name = dict(zip(state_names, state_people_per_seat))
+    # state_people_per_seat = []
+    # state_people_per_seat = calc_state_people_per_seat(
+    #     state_pops, list(state_reps_name.values()))
+    # state_people_per_seat_name = dict(zip(state_names, state_people_per_seat))
 
-    mean_people_per_seat = np.mean(state_people_per_seat)
-    std_dev_people_per_seat = np.std(state_people_per_seat)
-    range_people_per_seat = max(
-        state_people_per_seat) - min(state_people_per_seat)
-    geo_mean_people_per_seat = calc_geo_mean(state_people_per_seat)
+    # mean_people_per_seat = np.mean(state_people_per_seat)
+    # std_dev_people_per_seat = np.std(state_people_per_seat)
+    # range_people_per_seat = max(
+    #     state_people_per_seat) - min(state_people_per_seat)
+    # geo_mean_people_per_seat = calc_geo_mean(state_people_per_seat)
 
-    mean_line.set_xdata([0, 1.0])
-    mean_line.set_ydata([mean_people_per_seat])
-    mean_txt.set_text(f"Mean: {mean_people_per_seat:,.2f}")
-    std_dev_txt.set_text(f"Std. Dev.: {std_dev_people_per_seat:,.2f}")
-    range_txt.set_text(f"Range: {range_people_per_seat:,.2f}")
-    geo_mean_txt.set_text(f"Geo. Mean: {geo_mean_people_per_seat:,.2f}")
+    # mean_line.set_xdata([0, 1.0])
+    # mean_line.set_ydata([mean_people_per_seat])
+    # mean_txt.set_text(f"Mean: {mean_people_per_seat:,.2f}")
+    # std_dev_txt.set_text(f"Std. Dev.: {std_dev_people_per_seat:,.2f}")
+    # range_txt.set_text(f"Range: {range_people_per_seat:,.2f}")
+    # geo_mean_txt.set_text(f"Geo. Mean: {geo_mean_people_per_seat:,.2f}")
 
-    seat_txt.set_text(f"Seat# {50 + frame}")
-    state_txt.set_text(f"State: {max_state}")
+    # seat_txt.set_text(f"Seat# {50 + frame}")
+    # state_txt.set_text(f"State: {max_state}")
 
-    for bar, people_per_seat in zip(plt_1_bars, state_people_per_seat):
-        bar.set_height(people_per_seat)
+    # for bar, people_per_seat in zip(plt_1_bars, state_people_per_seat):
+    #     bar.set_height(people_per_seat)
 
-    # End Plot 1
+    # # End Plot 1
 
-    # Plot 2
-    for bar, reps in zip(plt_2_bars, list(state_reps_name.values())):
-        bar.set_height(reps)
+    # # Plot 2
+    # for bar, reps in zip(plt_2_bars, list(state_reps_name.values())):
+    #     bar.set_height(reps)
 
-    # End plot 2
+    # # End plot 2
 
-    # Plot 3
-    for bar, pritority_num in zip(plt_3_bars, state_priority_nums):
-        bar.set_color("g")
-        if pritority_num == state_priority_name[max_state]:
-            bar.set_height(pritority_num)
-            bar.set_color("r")
-        else:
-            bar.set_height(pritority_num)
+    # # Plot 3
+    # for bar, pritority_num in zip(plt_3_bars, state_priority_nums):
+    #     bar.set_color("g")
+    #     if pritority_num == state_priority_name[max_state]:
+    #         bar.set_height(pritority_num)
+    #         bar.set_color("r")
+    #     else:
+    #         bar.set_height(pritority_num)
 
     # End plot 3
 
-    print("-" * 60)
-    print(f"Seat# {frame}")
-    print(f"Highest priority num: {max_state}")
-    print("-" * 30)
-    print(f"Priority nums: {state_priority_name}")
-    print("-" * 30)
-    print(f"State reps: {state_reps_name}")
-    print("-" * 30)
-    print(f"People per seat: {state_people_per_seat_name}")
-    print("-" * 60)
+    # print("-" * 60)
+    # print(f"Seat# {frame}")
+    # print(f"Highest priority num: {max_state}")
+    # print("-" * 30)
+    # print(f"Priority nums: {state_priority_name}")
+    # print("-" * 30)
+    # print(f"State reps: {state_reps_name}")
+    # print("-" * 30)
+    # print(f"People per seat: {state_people_per_seat_name}")
+    # print("-" * 60)
 
 
 Writer = animation.writers['ffmpeg']
