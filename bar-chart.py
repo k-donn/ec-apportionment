@@ -1,5 +1,6 @@
 # TODO
-# Add animation func
+# Add type hints for funcs
+# Use fargs in animation to reduce global variables
 
 from typing import Type, Dict, List
 from matplotlib.axes._subplots import Axes
@@ -48,9 +49,6 @@ def parse_states(raw_csv):
     return state_info_list
 
 
-matplotlib.use("Qt5Agg")
-
-
 def calc_geo_mean(iterable):
     a = np.log(iterable)
     return np.exp(a.sum()/len(a))
@@ -93,7 +91,7 @@ def format_plot_1(plt_1, x_vals, pop_per_rep_list, state_names):
 
     plt_1.text(0.0, 0.0, "/u/ilikeplanes86", transform=plt_1.transAxes)
 
-    return (plt_1_bars, (seat_txt, state_txt, mean_txt, std_dev_txt, range_txt, geo_mean_txt, mean_line))
+    return (plt_1_bars, mean_line, {"seat_txt": seat_txt, "state_txt": state_txt, "mean_txt": mean_txt, "std_dev_txt": std_dev_txt, "range_txt": range_txt, "geo_mean_txt": geo_mean_txt})
 
 
 # bar chart of number of reps
@@ -138,30 +136,81 @@ def format_plot_4(plt_4):
 
 
 def format_plt(plt):
-    plt.subplots_adjust(top=0.964,
-                        bottom=0.138,
+    plt.subplots_adjust(top=0.963,
+                        bottom=0.142,
                         left=0.064,
                         right=0.986,
-                        hspace=0.456,
+                        hspace=0.495,
                         wspace=0.072)
 
 
+def update_plt1(frame, pop_per_rep_list):
+    mean_pop_per_seat: float = np.mean(pop_per_rep_list)
+    std_dev_pop_per_seat: float = np.std(pop_per_rep_list)
+    range_pop_per_seat: float = max(
+        pop_per_rep_list) - min(pop_per_rep_list)
+    geo_mean_pop_per_seat: float = calc_geo_mean(pop_per_rep_list)
+
+    max_state: str = max(state_info_list, key=lambda v: v["priority"])["name"]
+
+    txt_dict["seat_txt"].set_text(
+        f"Seat# {frame + 1}")
+    txt_dict["state_txt"].set_text(
+        f"State: {max_state}")
+    txt_dict["mean_txt"].set_text(
+        f"Mean: {mean_pop_per_seat:,.2f}")
+    txt_dict["std_dev_txt"].set_text(
+        f"Std. Dev. {std_dev_pop_per_seat:,.2f}")
+    txt_dict["range_txt"].set_text(
+        f"Range: {range_pop_per_seat}")
+    txt_dict["geo_mean_txt"].set_text(
+        f"Geo. Mean: {geo_mean_pop_per_seat:,.2f}")
+
+    mean_line.set_xdata([0, 1.0])
+    mean_line.set_ydata([mean_pop_per_seat])
+
+
 def animate(frame: int) -> None:
-    if frame < 2:
-        return
+    print(f"Frame #{frame + 1}")
+    for state_info in state_info_list:
+        if state_info["max_pri"]:
+            state_info["reps"] = state_info["reps"] + 1
+            print(f"Adding to {state_info['name']}")
+            state_info["max_pri"] = False
+
+    for state_info in state_info_list:
+        state_info["priority"] = (state_info["pop"] *
+                                  (1 / math.sqrt((state_info["reps"] + 1) * ((state_info["reps"] + 1) - 1))))
+        state_info["pop_per_rep"] = state_info["pop"] / \
+            state_info["reps"]
+
+    state_info_list[state_info_list.index(
+        max(state_info_list, key=lambda v: v["priority"]))]["max_pri"] = True
+
+    pop_per_rep_list = list(
+        map(operator.itemgetter("pop_per_rep"), state_info_list))
+
+    update_plt1(frame, pop_per_rep_list)
+
+
+def init_anim():
+    return
 
 
 if __name__ == "__main__":
+    matplotlib.use("Qt5Agg")
+
     rows = extract_csv()
-    state_info = parse_states(rows)
+    state_info_list = parse_states(rows)
 
-    max_state: str = max(state_info, key=lambda v: v["priority"])["name"]
+    max_state: str = max(state_info_list, key=lambda v: v["priority"])["name"]
 
-    pop_per_rep_list = list(
-        map(operator.itemgetter("pop_per_rep"), state_info))
-    state_names = list(map(operator.itemgetter("name"), state_info))
-    reps_list = list(map(operator.itemgetter("reps"), state_info))
-    priority_list = list(map(operator.itemgetter("priority"), state_info))
+    state_names = list(map(operator.itemgetter("name"), state_info_list))
+    initial_pop_per_rep_list = list(
+        map(operator.itemgetter("pop_per_rep"), state_info_list))
+    initial_reps_list = list(map(operator.itemgetter("reps"), state_info_list))
+    initial_priority_list = list(
+        map(operator.itemgetter("priority"), state_info_list))
 
     fig: Type[Figure] = plt.figure()
 
@@ -170,21 +219,21 @@ if __name__ == "__main__":
     plt_3: Type[Axes] = fig.add_subplot(223)
     plt_4: Type[Axes] = fig.add_subplot(224)
 
-    y_pos = np.arange(len(state_info))
-    x_pos = np.arange(len(state_info))
+    x_pos = np.arange(len(state_info_list))
 
-    format_plot_1(plt_1, x_pos, pop_per_rep_list, state_names)
-    format_plot_2(plt_2, x_pos, reps_list, state_names)
-    format_plot_3(plt_3, x_pos, priority_list, state_names)
+    (plt_1_bars, mean_line, txt_dict) = format_plot_1(
+        plt_1, x_pos, initial_pop_per_rep_list, state_names)
+    plt_2_bars = format_plot_2(plt_2, x_pos, initial_reps_list, state_names)
+    plt_2_bars = format_plot_3(
+        plt_3, x_pos, initial_priority_list, state_names)
     format_plot_4(plt_4)
 
-    # Writer = animation.writers['ffmpeg']
-    # writer = Writer(fps=15, metadata=dict(artist='/u/ilikeplanes86'), bitrate=1800)
+    format_plt(plt)
 
     # account for frame zero
-    # frames: int = 386
-    # anim: Animation = animation.FuncAnimation(
-    #     fig, animate, repeat=False, blit=False, frames=frames, interval=10)
+    frames: int = 385
+    anim: Animation = animation.FuncAnimation(
+        fig, animate, init_func=init_anim, frames=frames, interval=100, repeat=False)
 
     figManager: Type[FigureManagerQT] = plt.get_current_fig_manager()
     figManager.window.showMaximized()
