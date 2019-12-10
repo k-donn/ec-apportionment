@@ -64,6 +64,9 @@ state_info = parse_states(rows)
 
 max_state: str = max(state_info, key=lambda v: v["priority"])["name"]
 pop_per_rep_list = list(map(operator.itemgetter("pop_per_rep"), state_info))
+state_names = list(map(operator.itemgetter("name"), state_info))
+reps_list = list(map(operator.itemgetter("reps"), state_info))
+priority_list = list(map(operator.itemgetter("priority"), state_info))
 mean_people_per_seat: float = np.mean(pop_per_rep_list)
 std_dev_people_per_seat: float = np.std(pop_per_rep_list)
 range_people_per_seat: float = max(pop_per_rep_list) - min(pop_per_rep_list)
@@ -98,7 +101,7 @@ mean_line: Type[Line2D] = plt_1.axhline(y=mean_people_per_seat,
                                         xmin=0.0, xmax=1.0, color="r")
 
 
-plt_1_bars: Type[BarContainer] = plt_1.bar(y_pos, state_people_per_seat,
+plt_1_bars: Type[BarContainer] = plt_1.bar(y_pos, pop_per_rep_list,
                                            align="center", alpha=0.5)
 plt_1.set_xticks(x_pos)
 plt_1.set_xticklabels(state_names, rotation=77)
@@ -112,7 +115,7 @@ plt_1.set_title("Progression of people per representative in each state.")
 
 # bar chart of number of reps
 plt_2_bars: Type[BarContainer] = plt_2.bar(
-    y_pos, state_reps, align="center", alpha=0.5, color="r")
+    y_pos, reps_list, align="center", alpha=0.5, color="r")
 plt_2.set_xticks(x_pos)
 plt_2.set_xticklabels(state_names, rotation=77)
 
@@ -123,7 +126,7 @@ plt_2.invert_yaxis()
 
 plt_2.set_title("Number of representatives in each state")
 
-plt_3_bars: Type[BarContainer] = plt_3.bar(y_pos, state_priority_nums,
+plt_3_bars: Type[BarContainer] = plt_3.bar(y_pos, priority_list,
                                            align="center", alpha=0.5, color="g")
 plt_3.set_xticks(x_pos)
 plt_3.set_xticklabels(state_names, rotation=77)
@@ -149,79 +152,14 @@ def animate(frame: int) -> None:
     if frame < 2:
         return
 
-    
-    # Plot 1
-    # state_priority_nums = calc_priority_nums(
-    #     state_names, state_reps_name, state_pops_name)
-    # state_priority_name = dict(zip(state_names, state_priority_nums))
-
-    # max_state = max(state_priority_name.items(),
-    #                 key=operator.itemgetter(1))[0]
-
-    # state_reps_name[max_state] = state_reps_name[max_state] + 1
-
-    # state_people_per_seat = []
-    # state_people_per_seat = calc_state_people_per_seat(
-    #     state_pops, list(state_reps_name.values()))
-    # state_people_per_seat_name = dict(zip(state_names, state_people_per_seat))
-
-    # mean_people_per_seat = np.mean(state_people_per_seat)
-    # std_dev_people_per_seat = np.std(state_people_per_seat)
-    # range_people_per_seat = max(
-    #     state_people_per_seat) - min(state_people_per_seat)
-    # geo_mean_people_per_seat = calc_geo_mean(state_people_per_seat)
-
-    # mean_line.set_xdata([0, 1.0])
-    # mean_line.set_ydata([mean_people_per_seat])
-    # mean_txt.set_text(f"Mean: {mean_people_per_seat:,.2f}")
-    # std_dev_txt.set_text(f"Std. Dev.: {std_dev_people_per_seat:,.2f}")
-    # range_txt.set_text(f"Range: {range_people_per_seat:,.2f}")
-    # geo_mean_txt.set_text(f"Geo. Mean: {geo_mean_people_per_seat:,.2f}")
-
-    # seat_txt.set_text(f"Seat# {50 + frame}")
-    # state_txt.set_text(f"State: {max_state}")
-
-    # for bar, people_per_seat in zip(plt_1_bars, state_people_per_seat):
-    #     bar.set_height(people_per_seat)
-
-    # # End Plot 1
-
-    # # Plot 2
-    # for bar, reps in zip(plt_2_bars, list(state_reps_name.values())):
-    #     bar.set_height(reps)
-
-    # # End plot 2
-
-    # # Plot 3
-    # for bar, pritority_num in zip(plt_3_bars, state_priority_nums):
-    #     bar.set_color("g")
-    #     if pritority_num == state_priority_name[max_state]:
-    #         bar.set_height(pritority_num)
-    #         bar.set_color("r")
-    #     else:
-    #         bar.set_height(pritority_num)
-
-    # End plot 3
-
-    # print("-" * 60)
-    # print(f"Seat# {frame}")
-    # print(f"Highest priority num: {max_state}")
-    # print("-" * 30)
-    # print(f"Priority nums: {state_priority_name}")
-    # print("-" * 30)
-    # print(f"State reps: {state_reps_name}")
-    # print("-" * 30)
-    # print(f"People per seat: {state_people_per_seat_name}")
-    # print("-" * 60)
-
 
 Writer = animation.writers['ffmpeg']
 writer = Writer(fps=15, metadata=dict(artist='/u/ilikeplanes86'), bitrate=1800)
 
 # account for frame zero
 frames: int = 386
-anim: Animation = animation.FuncAnimation(
-    fig, animate, repeat=False, blit=False, frames=frames, interval=10)
+# anim: Animation = animation.FuncAnimation(
+#     fig, animate, repeat=False, blit=False, frames=frames, interval=10)
 
 
 figManager: Type[FigureManagerQT] = plt.get_current_fig_manager()
