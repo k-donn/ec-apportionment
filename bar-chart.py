@@ -279,7 +279,6 @@ def main():
         "CGP Grey Electoral College speadsheet animated")
 
     plt.show()
-    # anim.save("bar-chart-autorecord.mp4", writer=writer)
 
 
 if __name__ == "__main__":
