@@ -1,6 +1,5 @@
 # TODO
 # Add type hints for funcs
-# Use fargs in animation to reduce global variables
 
 from typing import Type, Dict, List
 from matplotlib.axes._subplots import Axes
@@ -144,7 +143,10 @@ def format_plt(plt):
                         wspace=0.072)
 
 
-def update_plt1(frame, pop_per_rep_list):
+def update_plt1(frame, state_info_list, mean_line, txt_dict):
+    pop_per_rep_list = list(
+        map(operator.itemgetter("pop_per_rep"), state_info_list))
+
     mean_pop_per_seat: float = np.mean(pop_per_rep_list)
     std_dev_pop_per_seat: float = np.std(pop_per_rep_list)
     range_pop_per_seat: float = max(
@@ -188,7 +190,7 @@ def update_plt1(frame, pop_per_rep_list):
     # end plot 3
 
 
-def animate(frame: int) -> None:
+def animate(frame: int, state_info_list, mean_line, txt_dict) -> None:
     print(f"Frame #{frame + 1}")
     for state_info in state_info_list:
         if state_info["max_pri"]:
@@ -205,10 +207,7 @@ def animate(frame: int) -> None:
     state_info_list[state_info_list.index(
         max(state_info_list, key=lambda v: v["priority"]))]["max_pri"] = True
 
-    pop_per_rep_list = list(
-        map(operator.itemgetter("pop_per_rep"), state_info_list))
-
-    update_plt1(frame, pop_per_rep_list)
+    update_plt1(frame, state_info_list, mean_line, txt_dict)
 
 
 def init_anim():
@@ -251,7 +250,7 @@ if __name__ == "__main__":
     # account for frame zero
     frames: int = 385
     anim: Animation = animation.FuncAnimation(
-        fig, animate, init_func=init_anim, frames=frames, interval=100, repeat=False)
+        fig, animate, fargs=(state_info_list, mean_line, txt_dict), init_func=init_anim, frames=frames, interval=100, repeat=False)
 
     figManager: Type[FigureManagerQT] = plt.get_current_fig_manager()
     figManager.window.showMaximized()
