@@ -264,9 +264,9 @@ def main():
 
     format_plt(plt)
 
-    plt_bars_dict = {"plt_1_bars": plt_1_bars,
-                     "plt_2_bars": plt_2_bars,
-                     "plt_3_bars": plt_3_bars}
+    plt_bars_dict: PlotBarsDict = {"plt_1_bars": plt_1_bars,
+                                   "plt_2_bars": plt_2_bars,
+                                   "plt_3_bars": plt_3_bars}
 
     # account for frame zero
     frames: int = 385
