@@ -169,6 +169,24 @@ def update_plt1(frame, pop_per_rep_list):
     mean_line.set_xdata([0, 1.0])
     mean_line.set_ydata([mean_pop_per_seat])
 
+    # plot 1
+    for bar, state_info in zip(plt_1_bars, state_info_list):
+        bar.set_height(state_info["pop_per_rep"])
+    # end plot 1
+
+    # plot 2
+    for bar, state_info in zip(plt_2_bars, state_info_list):
+        bar.set_color("g")
+        if state_info["max_pri"]:
+            bar.set_color("r")
+        bar.set_height(state_info["priority"])
+    # end plot 2
+
+    # plot 3
+    for bar, state_info in zip(plt_3_bars, state_info_list):
+        bar.set_height(state_info["reps"])
+    # end plot 3
+
 
 def animate(frame: int) -> None:
     print(f"Frame #{frame + 1}")
@@ -223,9 +241,9 @@ if __name__ == "__main__":
 
     (plt_1_bars, mean_line, txt_dict) = format_plot_1(
         plt_1, x_pos, initial_pop_per_rep_list, state_names)
-    plt_2_bars = format_plot_2(plt_2, x_pos, initial_reps_list, state_names)
     plt_2_bars = format_plot_3(
         plt_3, x_pos, initial_priority_list, state_names)
+    plt_3_bars = format_plot_2(plt_2, x_pos, initial_reps_list, state_names)
     format_plot_4(plt_4)
 
     format_plt(plt)
