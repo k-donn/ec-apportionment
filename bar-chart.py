@@ -1,7 +1,7 @@
 # TODO
-# Add type hints for funcs
+# Add infinite colors for tags
 
-from typing import Type, Dict, List
+from typing import Type, Dict, List, Union, Tuple, Iterable
 from matplotlib.axes._subplots import Axes
 from matplotlib.figure import Figure
 from matplotlib.container import BarContainer
@@ -19,14 +19,28 @@ import matplotlib.animation as animation
 import matplotlib.ticker as ticker
 import matplotlib
 
+# dict with name, pop, priority values, pop_per_rep, and is max pri
+StateInfo = Dict[str, Union[str, int, float, bool]]
+# list containing name and pop
+SimpleStateInfo = List[str]
+# dict with all the plot's text objects
+PlotTextDict = Dict[str, Text]
+# tuple with
+# BarContainer of points
+# mean line object
+# dict with text objects
+PlotProps = Tuple[BarContainer, Line2D, PlotTextDict]
+# dict with plot name and associated plot bar objects
+PlotBarsDict = Dict[str, BarContainer]
 
-def extract_csv():
+
+def extract_csv() -> List[SimpleStateInfo]:
     with open("state-populations.csv") as inp:
         reader = csv.reader(inp)
         return list(reader)
 
 
-def parse_states(raw_csv):
+def parse_states(raw_csv: List[SimpleStateInfo]) -> List[StateInfo]:
     max_priority = 0
     state_info_list = []
     for row in raw_csv:
@@ -48,15 +62,15 @@ def parse_states(raw_csv):
     return state_info_list
 
 
-def calc_geo_mean(iterable):
-    a = np.log(iterable)
+def calc_geo_mean(array: List[float]) -> float:
+    a: np.ndarray = np.log(array)
     return np.exp(a.sum()/len(a))
 
 
 # bar chart of pop_per_rep
-def format_plot_1(plt_1, x_vals, pop_per_rep_list, state_names):
-    plt_1_bars: Type[BarContainer] = plt_1.bar(x_vals, pop_per_rep_list,
-                                               align="center", alpha=0.5)
+def format_plot_1(plt_1: Axes, x_vals: List[int], pop_per_rep_list: List[float], state_names: List[str]) -> PlotProps:
+    plt_1_bars: BarContainer = plt_1.bar(x_vals, pop_per_rep_list,
+                                         align="center", alpha=0.5)
     plt_1.set_xticks(x_vals)
     plt_1.set_xticklabels(state_names, rotation=77)
 
@@ -73,20 +87,20 @@ def format_plot_1(plt_1, x_vals, pop_per_rep_list, state_names):
         pop_per_rep_list) - min(pop_per_rep_list)
     geo_mean_pop_per_seat: float = calc_geo_mean(pop_per_rep_list)
 
-    seat_txt: Type[Text] = plt_1.text(
+    seat_txt: Text = plt_1.text(
         0.25, 0.75, f"Seat# 1", transform=plt_1.transAxes)
-    state_txt: Type[Text] = plt_1.text(
+    state_txt: Text = plt_1.text(
         0.15, 0.85, "State: ", transform=plt_1.transAxes)
-    mean_txt: Type[Text] = plt_1.text(
+    mean_txt: Text = plt_1.text(
         0.45, 0.75, f"Mean: {mean_pop_per_seat:,.2f}", transform=plt_1.transAxes)
-    std_dev_txt: Type[Text] = plt_1.text(
+    std_dev_txt: Text = plt_1.text(
         0.35, 0.85, f"Std. Dev. {std_dev_pop_per_seat}", transform=plt_1.transAxes)
-    range_txt: Type[Text] = plt_1.text(
+    range_txt: Text = plt_1.text(
         0.70, 0.75, f"Range: {range_pop_per_seat}", transform=plt_1.transAxes)
-    geo_mean_txt: Type[Text] = plt_1.text(
+    geo_mean_txt: Text = plt_1.text(
         0.6, 0.85, f"Geo. Mean: {geo_mean_pop_per_seat}", transform=plt_1.transAxes)
-    mean_line: Type[Line2D] = plt_1.axhline(y=mean_pop_per_seat,
-                                            xmin=0.0, xmax=1.0, color="r")
+    mean_line: Line2D = plt_1.axhline(y=mean_pop_per_seat,
+                                      xmin=0.0, xmax=1.0, color="r")
 
     plt_1.text(0.0, 0.0, "/u/ilikeplanes86", transform=plt_1.transAxes)
 
@@ -94,8 +108,8 @@ def format_plot_1(plt_1, x_vals, pop_per_rep_list, state_names):
 
 
 # bar chart of number of reps
-def format_plot_2(plt_2, x_vals, reps_list, state_names):
-    plt_2_bars: Type[BarContainer] = plt_2.bar(
+def format_plot_2(plt_2: Axes, x_vals: List[int], reps_list: List[int], state_names: List[str]) -> BarContainer:
+    plt_2_bars: BarContainer = plt_2.bar(
         x_vals, reps_list, align="center", alpha=0.5, color="r")
     plt_2.set_xticks(x_vals)
     plt_2.set_xticklabels(state_names, rotation=77)
@@ -111,9 +125,9 @@ def format_plot_2(plt_2, x_vals, reps_list, state_names):
 
 
 # bar chart of priority nums
-def format_plot_3(plt_3, x_vals, priority_list, state_names):
-    plt_3_bars: Type[BarContainer] = plt_3.bar(x_vals, priority_list,
-                                               align="center", alpha=0.5, color="g")
+def format_plot_3(plt_3: Axes, x_vals: List[int], priority_list: List[float], state_names: List[str]) -> BarContainer:
+    plt_3_bars: BarContainer = plt_3.bar(x_vals, priority_list,
+                                         align="center", alpha=0.5, color="g")
     plt_3.set_xticks(x_vals)
     plt_3.set_xticklabels(state_names, rotation=77)
 
@@ -129,12 +143,13 @@ def format_plot_3(plt_3, x_vals, priority_list, state_names):
     return plt_3_bars
 
 
-def format_plot_4(plt_4):
+def format_plot_4(plt_4: Axes) -> None:
     plt_4.text(0.5, 0.5, "CGP Grey Electoral College Spreadsheet graphed.",
                transform=plt_4.transAxes, fontsize=20, horizontalalignment="center")
+    plt_4.axis("off")
 
 
-def format_plt(plt):
+def format_plt(plt: matplotlib.pyplot) -> None:
     plt.subplots_adjust(top=0.963,
                         bottom=0.142,
                         left=0.064,
@@ -143,7 +158,34 @@ def format_plt(plt):
                         wspace=0.072)
 
 
-def update_plt1(frame, state_info_list, mean_line, txt_dict):
+def init_anim() -> None:
+    return
+
+
+def animate(frame: int, state_info_list: List[StateInfo], plt_bars_dict: PlotBarsDict,  txt_dict: PlotTextDict, mean_line: Line2D) -> None:
+    print(f"Frame #{frame + 1}")
+    for state_info in state_info_list:
+        if state_info["max_pri"]:
+            state_info["reps"] = state_info["reps"] + 1
+            print(f"Adding to {state_info['name']}")
+            state_info["max_pri"] = False
+
+    for state_info in state_info_list:
+        state_info["priority"] = (state_info["pop"] *
+                                  (1 / math.sqrt((state_info["reps"] + 1) * ((state_info["reps"] + 1) - 1))))
+        state_info["pop_per_rep"] = state_info["pop"] / \
+            state_info["reps"]
+
+    state_info_list[state_info_list.index(
+        max(state_info_list, key=lambda v: v["priority"]))]["max_pri"] = True
+
+    update_plt1(plt_bars_dict["plt_1_bars"], state_info_list, mean_line,
+                txt_dict, frame)
+    update_plt2(plt_bars_dict["plt_2_bars"], state_info_list)
+    update_plt3(plt_bars_dict["plt_3_bars"], state_info_list)
+
+
+def update_plt1(plt_1_bars: BarContainer, state_info_list: List[StateInfo], mean_line: Line2D, txt_dict: PlotTextDict, frame: int) -> None:
     pop_per_rep_list = list(
         map(operator.itemgetter("pop_per_rep"), state_info_list))
 
@@ -171,91 +213,74 @@ def update_plt1(frame, state_info_list, mean_line, txt_dict):
     mean_line.set_xdata([0, 1.0])
     mean_line.set_ydata([mean_pop_per_seat])
 
-    # plot 1
     for bar, state_info in zip(plt_1_bars, state_info_list):
         bar.set_height(state_info["pop_per_rep"])
-    # end plot 1
 
-    # plot 2
+
+def update_plt2(plt_2_bars: BarContainer, state_info_list: List[StateInfo]):
     for bar, state_info in zip(plt_2_bars, state_info_list):
+        bar.set_height(state_info["reps"])
+
+
+def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]):
+    for bar, state_info in zip(plt_3_bars, state_info_list):
         bar.set_color("g")
         if state_info["max_pri"]:
             bar.set_color("r")
         bar.set_height(state_info["priority"])
-    # end plot 2
-
-    # plot 3
-    for bar, state_info in zip(plt_3_bars, state_info_list):
-        bar.set_height(state_info["reps"])
-    # end plot 3
 
 
-def animate(frame: int, state_info_list, mean_line, txt_dict) -> None:
-    print(f"Frame #{frame + 1}")
-    for state_info in state_info_list:
-        if state_info["max_pri"]:
-            state_info["reps"] = state_info["reps"] + 1
-            print(f"Adding to {state_info['name']}")
-            state_info["max_pri"] = False
-
-    for state_info in state_info_list:
-        state_info["priority"] = (state_info["pop"] *
-                                  (1 / math.sqrt((state_info["reps"] + 1) * ((state_info["reps"] + 1) - 1))))
-        state_info["pop_per_rep"] = state_info["pop"] / \
-            state_info["reps"]
-
-    state_info_list[state_info_list.index(
-        max(state_info_list, key=lambda v: v["priority"]))]["max_pri"] = True
-
-    update_plt1(frame, state_info_list, mean_line, txt_dict)
-
-
-def init_anim():
-    return
-
-
-if __name__ == "__main__":
+def main():
     matplotlib.use("Qt5Agg")
 
-    rows = extract_csv()
-    state_info_list = parse_states(rows)
+    rows: List[SimpleStateInfo] = extract_csv()
+    state_info_list: List[StateInfo] = parse_states(rows)
 
-    max_state: str = max(state_info_list, key=lambda v: v["priority"])["name"]
-
-    state_names = list(map(operator.itemgetter("name"), state_info_list))
-    initial_pop_per_rep_list = list(
+    state_names: List[str] = list(
+        map(operator.itemgetter("name"), state_info_list))
+    pop_per_rep_list: List[float] = list(
         map(operator.itemgetter("pop_per_rep"), state_info_list))
-    initial_reps_list = list(map(operator.itemgetter("reps"), state_info_list))
-    initial_priority_list = list(
+    reps_list: List[int] = list(
+        map(operator.itemgetter("reps"), state_info_list))
+    priority_list: List[float] = list(
         map(operator.itemgetter("priority"), state_info_list))
 
-    fig: Type[Figure] = plt.figure()
+    fig: Figure = plt.figure()
 
-    plt_1: Type[Axes] = fig.add_subplot(221)
-    plt_2: Type[Axes] = fig.add_subplot(222)
-    plt_3: Type[Axes] = fig.add_subplot(223)
-    plt_4: Type[Axes] = fig.add_subplot(224)
+    plt_1: Axes = fig.add_subplot(221)
+    plt_2: Axes = fig.add_subplot(222)
+    plt_3: Axes = fig.add_subplot(223)
+    plt_4: Axes = fig.add_subplot(224)
 
-    x_pos = np.arange(len(state_info_list))
+    x_pos: np.ndarray = np.arange(len(state_info_list))
 
     (plt_1_bars, mean_line, txt_dict) = format_plot_1(
-        plt_1, x_pos, initial_pop_per_rep_list, state_names)
-    plt_2_bars = format_plot_3(
-        plt_3, x_pos, initial_priority_list, state_names)
-    plt_3_bars = format_plot_2(plt_2, x_pos, initial_reps_list, state_names)
+        plt_1, x_pos, pop_per_rep_list, state_names)
+    plt_2_bars: [BarContainer] = format_plot_2(
+        plt_2, x_pos, reps_list, state_names)
+    plt_3_bars: [BarContainer] = format_plot_3(
+        plt_3, x_pos, priority_list, state_names)
     format_plot_4(plt_4)
 
     format_plt(plt)
 
+    plt_bars_dict = {"plt_1_bars": plt_1_bars,
+                     "plt_2_bars": plt_2_bars,
+                     "plt_3_bars": plt_3_bars}
+
     # account for frame zero
     frames: int = 385
-    anim: Animation = animation.FuncAnimation(
-        fig, animate, fargs=(state_info_list, mean_line, txt_dict), init_func=init_anim, frames=frames, interval=100, repeat=False)
+    animation.FuncAnimation(
+        fig, animate, fargs=(state_info_list, plt_bars_dict, txt_dict, mean_line), init_func=init_anim, frames=frames, interval=100, repeat=False)
 
-    figManager: Type[FigureManagerQT] = plt.get_current_fig_manager()
+    figManager: FigureManagerQT = plt.get_current_fig_manager()
     figManager.window.showMaximized()
     figManager.set_window_title(
         "CGP Grey Electoral College speadsheet animated")
 
     plt.show()
     # anim.save("bar-chart-autorecord.mp4", writer=writer)
+
+
+if __name__ == "__main__":
+    main()
