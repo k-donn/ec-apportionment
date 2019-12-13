@@ -35,7 +35,7 @@ PlotBarsDict = Dict[str, BarContainer]
 
 
 def extract_csv() -> List[SimpleStateInfo]:
-    with open("state-populations.csv") as inp:
+    with open("./data/state-populations.csv") as inp:
         reader = csv.reader(inp)
         return list(reader)
 
@@ -115,9 +115,7 @@ def format_plot_2(plt_2: Axes, x_vals: List[int], reps_list: List[int], state_na
     plt_2.set_xticklabels(state_names, rotation=77)
 
     plt_2.set_ylabel("Representatives")
-    plt_2.set_ylim(60)
-    # Y-axis gets flpped for some reason
-    plt_2.invert_yaxis()
+    plt_2.set_ylim(top=60, bottom=0)
 
     plt_2.set_title("Number of representatives in each state")
 
@@ -270,7 +268,7 @@ def main():
 
     # account for frame zero
     frames: int = 385
-    animation.FuncAnimation(
+    anim: Animation = animation.FuncAnimation(
         fig, animate, fargs=(state_info_list, plt_bars_dict, txt_dict, mean_line), init_func=init_anim, frames=frames, interval=100, repeat=False)
 
     figManager: FigureManagerQT = plt.get_current_fig_manager()
