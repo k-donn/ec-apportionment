@@ -1,5 +1,4 @@
 # TODO
-# Add infinite colors for tags
 
 from typing import Type, Dict, List, Union, Tuple, Iterable
 from matplotlib.axes._subplots import Axes
@@ -25,7 +24,7 @@ StateInfo = Dict[str, Union[str, int, float, bool]]
 SimpleStateInfo = List[str]
 # dict with all the plot's text objects
 PlotTextDict = Dict[str, Text]
-# tuple with
+# tuple with,
 # BarContainer of points
 # mean line object
 # dict with text objects
@@ -268,7 +267,7 @@ def main():
 
     # account for frame zero
     frames: int = 385
-    anim: Animation = animation.FuncAnimation(
+    anim: Animation = animation.FuncAnimation(  # pylint: disable=unused-variable
         fig, animate, fargs=(state_info_list, plt_bars_dict, txt_dict, mean_line), init_func=init_anim, frames=frames, interval=100, repeat=False)
 
     figManager: FigureManagerQT = plt.get_current_fig_manager()
