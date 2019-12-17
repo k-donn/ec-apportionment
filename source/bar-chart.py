@@ -212,12 +212,12 @@ def update_plt1(plt_1_bars: BarContainer, state_info_list: List[StateInfo], mean
         bar.set_height(state_info["pop_per_rep"])
 
 
-def update_plt2(plt_2_bars: BarContainer, state_info_list: List[StateInfo]):
+def update_plt2(plt_2_bars: BarContainer, state_info_list: List[StateInfo]) -> None:
     for bar, state_info in zip(plt_2_bars, state_info_list):
         bar.set_height(state_info["reps"])
 
 
-def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]):
+def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> None:
     for bar, state_info in zip(plt_3_bars, state_info_list):
         bar.set_color("g")
         if state_info["max_pri"]:
@@ -225,7 +225,7 @@ def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]):
         bar.set_height(state_info["priority"])
 
 
-def main():
+def main() -> None:
     matplotlib.use("Qt5Agg")
 
     rows: List[SimpleStateInfo] = extract_csv()
