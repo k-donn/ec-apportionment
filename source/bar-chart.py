@@ -1,4 +1,5 @@
 # TODO
+# Add documentation
 
 from typing import Type, Dict, List, Union, Tuple, Iterable
 from matplotlib.axes._subplots import Axes
@@ -24,12 +25,9 @@ StateInfo = Dict[str, Union[str, int, float, bool]]
 SimpleStateInfo = List[str]
 # dict with all the plot's text objects
 PlotTextDict = Dict[str, Text]
-# tuple with,
-# BarContainer of points
-# mean line object
-# dict with text objects
+# attribute objects related to plot graphics
 PlotProps = Tuple[BarContainer, Line2D, PlotTextDict]
-# dict with plot name and associated plot bar objects
+# relates state names to respective bar objects
 PlotBarsDict = Dict[str, BarContainer]
 
 
