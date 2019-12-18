@@ -1,5 +1,4 @@
 # TODO
-# Add documentation
 
 from typing import Type, Dict, List, Union, Tuple, Iterable
 from matplotlib.axes._subplots import Axes
@@ -32,12 +31,35 @@ PlotBarsDict = Dict[str, BarContainer]
 
 
 def extract_csv() -> List[SimpleStateInfo]:
+    """ 
+    Turn the states in the csv file to a Python data structure.
+    Returns
+    -------
+    `List[SimpleStateInfo]`
+        The name and population of each state in the file
+    """
+    res: List[SimpleStateInfo]
     with open("./data/state-populations.csv") as inp:
         reader = csv.reader(inp)
-        return list(reader)
+        res = list(reader)
+    return res
 
 
 def parse_states(raw_csv: List[SimpleStateInfo]) -> List[StateInfo]:
+    """
+    Calculate the priority value, population per representative, and number of representatives for each 
+    state.
+    Parameters
+    ----------
+    raw_csv : `List[SimpleStateInfo]`
+        The list of the population and name for each state
+
+
+    Returns
+    -------
+    `List[StateInfo]`
+        A list of the parsed attributes
+    """
     max_priority = 0
     state_info_list = []
     for row in raw_csv:
@@ -60,12 +82,42 @@ def parse_states(raw_csv: List[SimpleStateInfo]) -> List[StateInfo]:
 
 
 def calc_geo_mean(array: List[float]) -> float:
+    """
+    Calculate the geometric mean of an array of floats.
+    Parameters
+    ----------
+    array : `List[float]`
+        An array of float values
+
+    Returns
+    -------
+    `float`
+        The average of the products of the values
+    """
     a: np.ndarray = np.log(array)
     return np.exp(a.sum()/len(a))
 
 
 # bar chart of pop_per_rep
 def format_plot_1(plt_1: Axes, x_vals: List[int], pop_per_rep_list: List[float], state_names: List[str]) -> PlotProps:
+    """
+    Add the x & y ticks, format those ticks, set the title, draw the mean line, and place the text on the plot.
+    Parameters
+    ----------
+    plt_1 : `Axes`
+        The object that describes the graph
+    x_vals : `List[int]`
+        The list of ints that shows the states' position's
+    pop_per_rep_list : `List[float]`
+        The list of population per representative values for all the states
+    state_names : `List[str]`
+        The list of state names
+
+    Returns
+    -------
+    `PlotProps`
+        A tuple of the plotted bars, text, and line objects
+    """
     plt_1_bars: BarContainer = plt_1.bar(x_vals, pop_per_rep_list,
                                          align="center", alpha=0.5)
     plt_1.set_xticks(x_vals)
@@ -106,6 +158,24 @@ def format_plot_1(plt_1: Axes, x_vals: List[int], pop_per_rep_list: List[float],
 
 # bar chart of number of reps
 def format_plot_2(plt_2: Axes, x_vals: List[int], reps_list: List[int], state_names: List[str]) -> BarContainer:
+    """
+    Add the x & y ticks, format those ticks, set the title,  and place the text on the plot.
+    Parameters
+    ----------
+    plt_2 : `Axes`
+        The object that describes the graph
+    x_vals : `List[int]`
+        The list of ints that shows the states' position's
+    reps_list : `List[int]`
+        The list of the count of each states' representatives
+    state_names : `List[str]`
+        The list of state names
+
+    Returns
+    -------
+    `BarContainer`
+        The objects describing the plotted bars
+    """
     plt_2_bars: BarContainer = plt_2.bar(
         x_vals, reps_list, align="center", alpha=0.5, color="r")
     plt_2.set_xticks(x_vals)
@@ -121,6 +191,25 @@ def format_plot_2(plt_2: Axes, x_vals: List[int], reps_list: List[int], state_na
 
 # bar chart of priority nums
 def format_plot_3(plt_3: Axes, x_vals: List[int], priority_list: List[float], state_names: List[str]) -> BarContainer:
+    """
+    Add the x & y ticks, format those ticks, set the title,  and place the text on the plot.
+    Parameters
+    Parameters
+    ----------
+    plt_3 : `Axes`
+        The object that describes the graph
+    x_vals : `List[int]`
+        The list of ints that shows the states' position's
+    priority_list : `List[float]`
+        The list of each states' priority values
+    state_names : `List[str]`
+        The list of state names
+
+    Returns
+    -------
+    `BarContainer`
+        The objects describing the plotted bars
+    """
     plt_3_bars: BarContainer = plt_3.bar(x_vals, priority_list,
                                          align="center", alpha=0.5, color="g")
     plt_3.set_xticks(x_vals)
@@ -139,12 +228,28 @@ def format_plot_3(plt_3: Axes, x_vals: List[int], priority_list: List[float], st
 
 
 def format_plot_4(plt_4: Axes) -> None:
+    """
+    Add the x & y ticks, format those ticks, set the title,  and place the text on the plot.
+    Parameters
+    ----------
+    plt_4 : `Axes`
+        The object that describes the graph
+
+    """
     plt_4.text(0.5, 0.5, "CGP Grey Electoral College Spreadsheet graphed.",
                transform=plt_4.transAxes, fontsize=20, horizontalalignment="center")
     plt_4.axis("off")
 
 
 def format_plt(plt: matplotlib.pyplot) -> None:
+    """
+    Adjust the size of the plot (all subplots but not the entire window)
+    Parameters
+    ----------
+    plt : `matplotlib.pyplot`
+        The matplotlib `pyplot` module
+
+    """
     plt.subplots_adjust(top=0.963,
                         bottom=0.142,
                         left=0.064,
@@ -154,10 +259,36 @@ def format_plt(plt: matplotlib.pyplot) -> None:
 
 
 def init_anim() -> None:
+    """ 
+    Called very first on Matplotlib's `FuncAnimation`.
+    Nothing needs to be done. All initialization is done
+    in the `format_plt_x` functions.
+    """
     return
+
+#
 
 
 def animate(frame: int, state_info_list: List[StateInfo], plt_bars_dict: PlotBarsDict,  txt_dict: PlotTextDict, mean_line: Line2D) -> None:
+    """
+    Called every frame of Matplotlib's `FuncAnimation`. Calculate the 
+    new priority values and reps in each state. This is passed the 
+    properties about each of the subplots that we need to update and
+    the previous frame's finished calculations. This makes calls to
+    other functions that update each individual plot.
+    Parameters
+    ----------
+    frame : `int`
+        The current frame number
+    state_info_list : `List[StateInfo]`
+        The parsed attributes about each of the states (pop_per_rep, priority values, etc.)
+    plt_bars_dict : `PlotBarsDict`
+        A dictionary that links the name of each plot to its respective `BarContainer` instance
+    txt_dict : `PlotTextDict`
+        A dictionary that links the name of each text property to its `Text` object
+    mean_line : `Line2D`
+        The object describing the mean-line in the first plot
+    """
     print(f"Frame #{frame + 1}")
     for state_info in state_info_list:
         if state_info["max_pri"]:
@@ -181,6 +312,22 @@ def animate(frame: int, state_info_list: List[StateInfo], plt_bars_dict: PlotBar
 
 
 def update_plt1(plt_1_bars: BarContainer, state_info_list: List[StateInfo], mean_line: Line2D, txt_dict: PlotTextDict, frame: int) -> None:
+    """
+    Re-plot all of the bars, move the mean line, and set the text of everything on 
+    plot 1 with newly calculated data.
+    Parameters
+    ----------
+    plt_1_bars : `BarContainer`
+        The objects describing the plotted bars
+    state_info_list : `List[StateInfo]`
+        The parsed attributes about each of the states (pop_per_rep, priority values, etc.)
+    mean_line : `Line2D`
+        The object describing the mean-line in the first plot
+    txt_dict : `PlotTextDict`
+        A dictionary that links the name of each text property to its `Text` object
+    frame : `int`
+        The current frame number
+    """
     pop_per_rep_list = list(
         map(operator.itemgetter("pop_per_rep"), state_info_list))
 
@@ -213,11 +360,29 @@ def update_plt1(plt_1_bars: BarContainer, state_info_list: List[StateInfo], mean
 
 
 def update_plt2(plt_2_bars: BarContainer, state_info_list: List[StateInfo]) -> None:
+    """
+    Re-plot all of the bars on plot 2 with newly calculated data.
+    Parameters
+    ----------
+    plt_2_bars : `BarContainer`
+        The objects describing the plotted bars
+    state_info_list : `List[StateInfo]`
+        The parsed attributes about each of the states (pop_per_rep, priority values, etc.)
+    """
     for bar, state_info in zip(plt_2_bars, state_info_list):
         bar.set_height(state_info["reps"])
 
 
 def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> None:
+    """
+    Re-plot all of the bars on plot 3 with newly calculated data.
+    Parameters
+    ----------
+    plt_3_bars : `BarContainer`
+        The objects describing the plotted bars
+    state_info_list : `List[StateInfo]`
+        The parsed attributes about each of the states (pop_per_rep, priority values, etc.)
+    """
     for bar, state_info in zip(plt_3_bars, state_info_list):
         bar.set_color("g")
         if state_info["max_pri"]:
@@ -226,6 +391,9 @@ def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> N
 
 
 def main() -> None:
+    """ 
+    Run all executable code
+    """
     matplotlib.use("Qt5Agg")
 
     rows: List[SimpleStateInfo] = extract_csv()
