@@ -136,24 +136,26 @@ def format_plot_1(plt_1: Axes, x_vals: List[int], pop_per_rep_list: List[float],
         pop_per_rep_list) - min(pop_per_rep_list)
     geo_mean_pop_per_seat: float = calc_geo_mean(pop_per_rep_list)
 
-    seat_txt: Text = plt_1.text(
+    res_dict: PlotTextDict = {}
+
+    res_dict["seat_txt"] = plt_1.text(
         0.25, 0.75, f"Seat# 1", transform=plt_1.transAxes)
-    state_txt: Text = plt_1.text(
+    res_dict["state_txt"] = plt_1.text(
         0.15, 0.85, "State: ", transform=plt_1.transAxes)
-    mean_txt: Text = plt_1.text(
+    res_dict["mean_txt"] = plt_1.text(
         0.45, 0.75, f"Mean: {mean_pop_per_seat:,.2f}", transform=plt_1.transAxes)
-    std_dev_txt: Text = plt_1.text(
+    res_dict["std_dev_txt"] = plt_1.text(
         0.35, 0.85, f"Std. Dev. {std_dev_pop_per_seat}", transform=plt_1.transAxes)
-    range_txt: Text = plt_1.text(
+    res_dict["range_txt"] = plt_1.text(
         0.70, 0.75, f"Range: {range_pop_per_seat}", transform=plt_1.transAxes)
-    geo_mean_txt: Text = plt_1.text(
+    res_dict["geo_mean_txt"] = plt_1.text(
         0.6, 0.85, f"Geo. Mean: {geo_mean_pop_per_seat}", transform=plt_1.transAxes)
     mean_line: Line2D = plt_1.axhline(y=mean_pop_per_seat,
                                       xmin=0.0, xmax=1.0, color="r")
 
     plt_1.text(0.0, 0.0, "/u/ilikeplanes86", transform=plt_1.transAxes)
 
-    return (plt_1_bars, mean_line, {"seat_txt": seat_txt, "state_txt": state_txt, "mean_txt": mean_txt, "std_dev_txt": std_dev_txt, "range_txt": range_txt, "geo_mean_txt": geo_mean_txt})
+    return (plt_1_bars, mean_line, res_dict)
 
 
 # bar chart of number of reps
