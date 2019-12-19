@@ -12,7 +12,7 @@ See [Running](#running) for instructions on how to get started
 -   From the root of the folder,
 
 ```
-python3 ./source/bar-chart.py
+python3 ./source/bar-chart.py ./data/<STATE-POPULATIONS>.csv
 ```
 
 -   If there are any errors, they are most likely backend related.
@@ -22,4 +22,6 @@ python3 ./source/bar-chart.py
 
 From this [video](https://www.youtube.com/watch?v=6JN4RI7nkes).
 
-Update/Change the state population data by putting your own data into [state-populations.csv](https://github.com/k-donn/ec-apportionment/blob/master/data/state-populations.csv).
+Update/Change the state population data by putting your own data into [state-populations.csv](https://github.com/k-donn/ec-apportionment/blob/master/data/state-populations.csv) or pass the new name of the file from the command line.
+
+The CSV file should not have a header.

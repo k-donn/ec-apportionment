@@ -1,23 +1,24 @@
 # TODO
-# Add cmd argument for CSV data
 
-from typing import Type, Dict, List, Union, Tuple, Iterable
-from matplotlib.axes._subplots import Axes
-from matplotlib.figure import Figure
-from matplotlib.container import BarContainer
-from matplotlib.backends.backend_qt5 import FigureManagerQT
-from matplotlib.text import Text
-from matplotlib.animation import Animation
-from matplotlib.lines import Line2D
-from scipy.stats.mstats import gmean
 import csv
 import math
 import operator
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-import matplotlib.ticker as ticker
+from argparse import ArgumentParser
+from typing import Dict, Iterable, List, Tuple, Type, Union
+
 import matplotlib
+import matplotlib.animation as animation
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+import numpy as np
+from matplotlib.animation import Animation
+from matplotlib.axes._subplots import Axes
+from matplotlib.backends.backend_qt5 import FigureManagerQT
+from matplotlib.container import BarContainer
+from matplotlib.figure import Figure
+from matplotlib.lines import Line2D
+from matplotlib.text import Text
+from scipy.stats.mstats import gmean
 
 # dict with name, pop, priority values, pop_per_rep, and is max pri
 StateInfo = Dict[str, Union[str, int, float, bool]]
@@ -31,16 +32,20 @@ PlotProps = Tuple[BarContainer, Line2D, PlotTextDict]
 PlotBarsDict = Dict[str, BarContainer]
 
 
-def extract_csv() -> List[SimpleStateInfo]:
+def extract_csv(fname: str) -> List[SimpleStateInfo]:
     """ 
     Turn the states in the csv file to a Python data structure.
+    Parameters
+    ----------
+    fname: `str`
+        Path to CSV state population data
     Returns
     -------
     `List[SimpleStateInfo]`
         The name and population of each state in the file
     """
     res: List[SimpleStateInfo]
-    with open("./data/state-populations.csv") as inp:
+    with open(fname) as inp:
         reader = csv.reader(inp)
         res = list(reader)
     return res
@@ -399,7 +404,13 @@ def main() -> None:
     """
     matplotlib.use("Qt5Agg")
 
-    rows: List[SimpleStateInfo] = extract_csv()
+    parser: ArgumentParser = ArgumentParser(prog="python3 source/bar-chart.py",
+                                            description="Show an animation of the Huntington–Hill apportionment method")
+    parser.add_argument("file", help="Path to CSV state population data")
+
+    args = parser.parse_args()
+
+    rows: List[SimpleStateInfo] = extract_csv(args.file)
     state_info_list: List[StateInfo] = parse_states(rows)
 
     state_names: List[str] = list(
@@ -422,9 +433,9 @@ def main() -> None:
 
     (plt_1_bars, mean_line, txt_dict) = format_plot_1(
         plt_1, x_pos, pop_per_rep_list, state_names)
-    plt_2_bars: [BarContainer] = format_plot_2(
+    plt_2_bars: BarContainer = format_plot_2(
         plt_2, x_pos, reps_list, state_names)
-    plt_3_bars: [BarContainer] = format_plot_3(
+    plt_3_bars: BarContainer = format_plot_3(
         plt_3, x_pos, priority_list, state_names)
     format_plot_4(plt_4)
 
