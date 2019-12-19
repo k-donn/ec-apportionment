@@ -1,4 +1,5 @@
 # TODO
+# Add cmd argument for CSV data
 
 from typing import Type, Dict, List, Union, Tuple, Iterable
 from matplotlib.axes._subplots import Axes
