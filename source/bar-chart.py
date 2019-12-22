@@ -1,4 +1,5 @@
 # TODO
+# Add save animation feature
 
 import csv
 import math
@@ -436,7 +437,7 @@ def main() -> None:
     priority_list: List[float] = list(
         map(operator.itemgetter("priority"), state_info_list))
 
-    fig: Figure = plt.figure()
+    fig: Figure = plt.figure(figsize=(8.5,4.8), dpi=300)
 
     plt_1: Axes = fig.add_subplot(221)
     plt_2: Axes = fig.add_subplot(222)
@@ -459,10 +460,15 @@ def main() -> None:
                                    "plt_2_bars": plt_2_bars,
                                    "plt_3_bars": plt_3_bars}
 
-    frames: int = 385
+    # Writer = animation.writers["ffmpeg"]
+    # writer = Writer(fps=6, bitrate=2000)
+
+    frames: int = 100
     # This doesn't work if FuncAnimation isn't assigned to a value, hence, add disable-unused for `anim`
     anim: Animation = animation.FuncAnimation(  # pylint: disable=unused-variable
         fig, animate, fargs=(state_info_list, plt_bars_dict, txt_dict, mean_line), init_func=init_anim, frames=frames, interval=100, repeat=False)
+
+    # anim.save("recordings/2019-12-21.mp4", writer=writer)
 
     figManager: FigureManagerQT = plt.get_current_fig_manager()
     figManager.window.showMaximized()
