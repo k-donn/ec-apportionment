@@ -53,8 +53,8 @@ def extract_csv(fname: str) -> List[SimpleStateInfo]:
 
 def parse_states(raw_csv: List[SimpleStateInfo]) -> List[StateInfo]:
     """
-    Calculate the priority value, population per representative, and number of representatives for each 
-    state.
+    Calculate the priority value, population per representative,
+    and number of representatives for each state.
     Parameters
     ----------
     raw_csv : `List[SimpleStateInfo]`
@@ -104,9 +104,13 @@ def calc_geo_mean(array: List[float]) -> float:
     return np.exp(a.sum()/len(a))
 
 
-def format_plot_1(plt_1: Axes, x_vals: List[int], pop_per_rep_list: List[float], state_names: List[str]) -> PlotProps:
+def format_plot_1(
+        plt_1: Axes, x_vals: List[int],
+        pop_per_rep_list: List[float],
+        state_names: List[str]) -> PlotProps:
     """
-    Add the x & y ticks, format those ticks, set the title, draw the mean line, and place the text on the plot for
+    Add the x & y ticks, format those ticks, set the title,
+    draw the mean line, and place the text on the plot for 
     the pop_per_rep plot.
     Parameters
     ----------
@@ -164,10 +168,13 @@ def format_plot_1(plt_1: Axes, x_vals: List[int], pop_per_rep_list: List[float],
     return (plt_1_bars, mean_line, res_dict)
 
 
-def format_plot_2(plt_2: Axes, x_vals: List[int], reps_list: List[int], state_names: List[str]) -> BarContainer:
+def format_plot_2(
+        plt_2: Axes, x_vals: List[int],
+        reps_list: List[int],
+        state_names: List[str]) -> BarContainer:
     """
-    Add the x & y ticks, format those ticks, set the title,  and place the text on the plot for
-    the number of reps plot.
+    Add the x & y ticks, format those ticks, set the title,
+    and place the text on the plot for the number of reps plot.
     Parameters
     ----------
     plt_2 : `Axes`
@@ -197,10 +204,13 @@ def format_plot_2(plt_2: Axes, x_vals: List[int], reps_list: List[int], state_na
     return plt_2_bars
 
 
-def format_plot_3(plt_3: Axes, x_vals: List[int], priority_list: List[float], state_names: List[str]) -> BarContainer:
+def format_plot_3(
+        plt_3: Axes, x_vals: List[int],
+        priority_list: List[float],
+        state_names: List[str]) -> BarContainer:
     """
-    Add the x & y ticks, format those ticks, set the title, and place the text on the plot for
-    the priority num plot.
+    Add the x & y ticks, format those ticks, set the title,
+    and place the text on the plot for the priority num plot.
     Parameters
     ----------
     plt_3 : `Axes`
@@ -236,8 +246,8 @@ def format_plot_3(plt_3: Axes, x_vals: List[int], priority_list: List[float], st
 
 def format_plot_4(plt_4: Axes) -> None:
     """
-    Add the x & y ticks, format those ticks, set the title,and place the text on the plot for
-    the empty text plot.
+    Add the x & y ticks, format those ticks, set the title, 
+    and place the text on the plot for the empty text plot.
     Parameters
     ----------
     plt_4 : `Axes`
@@ -275,7 +285,9 @@ def init_anim() -> None:
     return
 
 
-def animate(frame: int, state_info_list: List[StateInfo], plt_bars_dict: PlotBarsDict,  txt_dict: PlotTextDict, mean_line: Line2D) -> None:
+def animate(
+        frame: int, state_info_list: List[StateInfo],
+        plt_bars_dict: PlotBarsDict, txt_dict: PlotTextDict, mean_line: Line2D) -> None:
     """
     Called every frame of Matplotlib's `FuncAnimation`. Calculate the 
     new priority values and reps in each state. This is passed the 
@@ -303,8 +315,9 @@ def animate(frame: int, state_info_list: List[StateInfo], plt_bars_dict: PlotBar
             state_info["max_pri"] = False
 
     for state_info in state_info_list:
-        state_info["priority"] = (state_info["pop"] *
-                                  (1 / math.sqrt((state_info["reps"] + 1) * ((state_info["reps"] + 1) - 1))))
+        state_info["priority"] = (
+            state_info["pop"] *
+            (1 / math.sqrt((state_info["reps"] + 1) * ((state_info["reps"] + 1) - 1))))
         state_info["pop_per_rep"] = state_info["pop"] / \
             state_info["reps"]
 
@@ -317,7 +330,9 @@ def animate(frame: int, state_info_list: List[StateInfo], plt_bars_dict: PlotBar
     update_plt3(plt_bars_dict["plt_3_bars"], state_info_list)
 
 
-def update_plt1(plt_1_bars: BarContainer, state_info_list: List[StateInfo], mean_line: Line2D, txt_dict: PlotTextDict, frame: int) -> None:
+def update_plt1(
+        plt_1_bars: BarContainer, state_info_list: List[StateInfo],
+        mean_line: Line2D, txt_dict: PlotTextDict, frame: int) -> None:
     """
     Re-plot all of the bars, move the mean line, and set the text of everything on 
     plot 1 with newly calculated data.
@@ -398,12 +413,13 @@ def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> N
 
 def main() -> None:
     """ 
-    Run all executable code
+    Show an animation of the Huntington–Hill apportionment method
     """
     matplotlib.use("Qt5Agg")
 
-    parser: ArgumentParser = ArgumentParser(prog="python3 source/bar-chart.py",
-                                            description="Show an animation of the Huntington–Hill apportionment method")
+    parser: ArgumentParser = ArgumentParser(
+        prog="python3 source/bar-chart.py",
+        description="Show an animation of the Huntington–Hill apportionment method")
     parser.add_argument("file", help="Path to CSV state population data")
 
     args = parser.parse_args()
