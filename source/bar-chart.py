@@ -437,7 +437,7 @@ def main() -> None:
     priority_list: List[float] = list(
         map(operator.itemgetter("priority"), state_info_list))
 
-    fig: Figure = plt.figure(figsize=(8.5,4.8), dpi=300)
+    fig: Figure = plt.figure()
 
     plt_1: Axes = fig.add_subplot(221)
     plt_2: Axes = fig.add_subplot(222)
