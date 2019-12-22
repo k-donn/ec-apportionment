@@ -104,10 +104,10 @@ def calc_geo_mean(array: List[float]) -> float:
     return np.exp(a.sum()/len(a))
 
 
-# bar chart of pop_per_rep
 def format_plot_1(plt_1: Axes, x_vals: List[int], pop_per_rep_list: List[float], state_names: List[str]) -> PlotProps:
     """
-    Add the x & y ticks, format those ticks, set the title, draw the mean line, and place the text on the plot.
+    Add the x & y ticks, format those ticks, set the title, draw the mean line, and place the text on the plot for
+    the pop_per_rep plot.
     Parameters
     ----------
     plt_1 : `Axes`
@@ -164,10 +164,10 @@ def format_plot_1(plt_1: Axes, x_vals: List[int], pop_per_rep_list: List[float],
     return (plt_1_bars, mean_line, res_dict)
 
 
-# bar chart of number of reps
 def format_plot_2(plt_2: Axes, x_vals: List[int], reps_list: List[int], state_names: List[str]) -> BarContainer:
     """
-    Add the x & y ticks, format those ticks, set the title,  and place the text on the plot.
+    Add the x & y ticks, format those ticks, set the title,  and place the text on the plot for
+    the number of reps plot.
     Parameters
     ----------
     plt_2 : `Axes`
@@ -197,11 +197,10 @@ def format_plot_2(plt_2: Axes, x_vals: List[int], reps_list: List[int], state_na
     return plt_2_bars
 
 
-# bar chart of priority nums
 def format_plot_3(plt_3: Axes, x_vals: List[int], priority_list: List[float], state_names: List[str]) -> BarContainer:
     """
-    Add the x & y ticks, format those ticks, set the title,  and place the text on the plot.
-    Parameters
+    Add the x & y ticks, format those ticks, set the title, and place the text on the plot for
+    the priority num plot.
     Parameters
     ----------
     plt_3 : `Axes`
@@ -237,7 +236,8 @@ def format_plot_3(plt_3: Axes, x_vals: List[int], priority_list: List[float], st
 
 def format_plot_4(plt_4: Axes) -> None:
     """
-    Add the x & y ticks, format those ticks, set the title,  and place the text on the plot.
+    Add the x & y ticks, format those ticks, set the title,and place the text on the plot for
+    the empty text plot.
     Parameters
     ----------
     plt_4 : `Axes`
@@ -274,8 +274,6 @@ def init_anim() -> None:
     """
     return
 
-#
-
 
 def animate(frame: int, state_info_list: List[StateInfo], plt_bars_dict: PlotBarsDict,  txt_dict: PlotTextDict, mean_line: Line2D) -> None:
     """
@@ -297,11 +295,11 @@ def animate(frame: int, state_info_list: List[StateInfo], plt_bars_dict: PlotBar
     mean_line : `Line2D`
         The object describing the mean-line in the first plot
     """
-    print(f"Frame #{frame + 1}")
+    # print(f"Frame #{frame + 1}")
     for state_info in state_info_list:
         if state_info["max_pri"]:
             state_info["reps"] = state_info["reps"] + 1
-            print(f"Adding to {state_info['name']}")
+            # print(f"Adding to {state_info['name']}")
             state_info["max_pri"] = False
 
     for state_info in state_info_list:
@@ -445,8 +443,8 @@ def main() -> None:
                                    "plt_2_bars": plt_2_bars,
                                    "plt_3_bars": plt_3_bars}
 
-    # account for frame zero
     frames: int = 385
+    # This doesn't work if FuncAnimation isn't assigned to a value, hence, add disable-unused for `anim`
     anim: Animation = animation.FuncAnimation(  # pylint: disable=unused-variable
         fig, animate, fargs=(state_info_list, plt_bars_dict, txt_dict, mean_line), init_func=init_anim, frames=frames, interval=100, repeat=False)
 
