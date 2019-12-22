@@ -9,7 +9,6 @@ from typing import Dict, Iterable, List, Tuple, Type, Union
 import matplotlib
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
-from matplotlib.ticker import FuncFormatter
 import numpy as np
 from matplotlib.animation import Animation
 from matplotlib.axes._subplots import Axes
@@ -18,7 +17,9 @@ from matplotlib.container import BarContainer
 from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
 from matplotlib.text import Text
+from matplotlib.ticker import FuncFormatter
 from scipy.stats.mstats import gmean
+
 
 # dict with name, pop, priority values, pop_per_rep, and is max pri
 StateInfo = Dict[str, Union[str, int, float, bool]]
@@ -267,13 +268,15 @@ def format_plot_4(plt_4: Axes) -> None:
 
 def format_plt(plt: matplotlib.pyplot) -> None:
     """
-    Adjust the size of the plot (all subplots but not the entire window)
+    Adjust plot level properties (all subplots but not the entire window)
     Parameters
     ----------
     plt : `matplotlib.pyplot`
         The matplotlib `pyplot` module
 
     """
+    plt.style.use("seaborn-dark")
+
     plt.subplots_adjust(top=0.963,
                         bottom=0.142,
                         left=0.064,
@@ -443,6 +446,7 @@ def main() -> None:
         map(operator.itemgetter("priority"), state_info_list))
 
     fig: Figure = plt.figure()
+    format_plt(plt)
 
     plt_1: Axes = fig.add_subplot(221)
     plt_2: Axes = fig.add_subplot(222)
@@ -451,7 +455,6 @@ def main() -> None:
 
     x_pos: np.ndarray = np.arange(len(state_info_list))
 
-    format_plt(plt)
     (plt_1_bars, mean_line, txt_dict) = format_plot_1(
         plt_1, x_pos, pop_per_rep_list, state_names)
     plt_2_bars: BarContainer = format_plot_2(
@@ -459,7 +462,6 @@ def main() -> None:
     plt_3_bars: BarContainer = format_plot_3(
         plt_3, x_pos, priority_list, state_names)
     format_plot_4(plt_4)
-
 
     plt_bars_dict: PlotBarsDict = {"plt_1_bars": plt_1_bars,
                                    "plt_2_bars": plt_2_bars,
