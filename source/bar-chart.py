@@ -1,5 +1,5 @@
 # TODO
-# Add save animation feature
+# Refactor y & x axis values for format_plt_x funcs
 
 import csv
 import math
@@ -323,7 +323,7 @@ def animate(
             state_info["reps"]
 
     state_info_list[state_info_list.index(
-        max(state_info_list, key=lambda v: v["priority"]))]["max_pri"] = True
+        max(state_info_list, key=operator.itemgetter("priority")))]["max_pri"] = True
 
     update_plt1(plt_bars_dict["plt_1_bars"], state_info_list, mean_line,
                 txt_dict, frame)
@@ -359,7 +359,7 @@ def update_plt1(
         pop_per_rep_list) - min(pop_per_rep_list)
     geo_mean_pop_per_seat: float = calc_geo_mean(pop_per_rep_list)
 
-    max_state: str = max(state_info_list, key=lambda v: v["priority"])["name"]
+    max_state: str = max(state_info_list, key=operator.itemgetter("priority"))["name"]
 
     txt_dict["seat_txt"].set_text(
         f"Seat# {frame + 1}")
@@ -460,15 +460,10 @@ def main() -> None:
                                    "plt_2_bars": plt_2_bars,
                                    "plt_3_bars": plt_3_bars}
 
-    # Writer = animation.writers["ffmpeg"]
-    # writer = Writer(fps=6, bitrate=2000)
-
     frames: int = 100
     # This doesn't work if FuncAnimation isn't assigned to a value, hence, add disable-unused for `anim`
     anim: Animation = animation.FuncAnimation(  # pylint: disable=unused-variable
         fig, animate, fargs=(state_info_list, plt_bars_dict, txt_dict, mean_line), init_func=init_anim, frames=frames, interval=100, repeat=False)
-
-    # anim.save("recordings/2019-12-21.mp4", writer=writer)
 
     figManager: FigureManagerQT = plt.get_current_fig_manager()
     figManager.window.showMaximized()
