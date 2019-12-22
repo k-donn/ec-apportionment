@@ -1,5 +1,4 @@
 # TODO
-# Refactor y & x axis values for format_plt_x funcs
 
 import csv
 import math
@@ -10,7 +9,7 @@ from typing import Dict, Iterable, List, Tuple, Type, Union
 import matplotlib
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
+from matplotlib.ticker import FuncFormatter
 import numpy as np
 from matplotlib.animation import Animation
 from matplotlib.axes._subplots import Axes
@@ -88,6 +87,10 @@ def parse_states(raw_csv: List[SimpleStateInfo]) -> List[StateInfo]:
     return state_info_list
 
 
+def comma_format_int():
+    return lambda x, p: "{:,}".format(int(x))
+
+
 def calc_geo_mean(array: List[float]) -> float:
     """
     Calculate the geometric mean of an array of floats.
@@ -132,12 +135,13 @@ def format_plot_1(
     plt_1_bars: BarContainer = plt_1.bar(x_vals, pop_per_rep_list,
                                          align="center", alpha=0.5)
     plt_1.set_xticks(x_vals)
-    plt_1.set_xticklabels(state_names, rotation=77)
+    plt_1.set_xticklabels(state_names, rotation="vertical")
+
+    y_formatter: FuncFormatter = FuncFormatter(comma_format_int())
 
     plt_1.set_ylabel("People/Representative")
     plt_1.set_yscale("log")
-    plt_1.get_yaxis().set_major_formatter(
-        ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+    plt_1.get_yaxis().set_major_formatter(y_formatter)
 
     plt_1.set_title("Progression of people per representative in each state.")
 
@@ -195,7 +199,7 @@ def format_plot_2(
     plt_2_bars: BarContainer = plt_2.bar(
         x_vals, reps_list, align="center", alpha=0.5, color="r")
     plt_2.set_xticks(x_vals)
-    plt_2.set_xticklabels(state_names, rotation=77)
+    plt_2.set_xticklabels(state_names, rotation="vertical")
 
     plt_2.set_ylabel("Representatives")
     plt_2.set_ylim(top=60, bottom=0)
@@ -231,12 +235,13 @@ def format_plot_3(
     plt_3_bars: BarContainer = plt_3.bar(x_vals, priority_list,
                                          align="center", alpha=0.5, color="g")
     plt_3.set_xticks(x_vals)
-    plt_3.set_xticklabels(state_names, rotation=77)
+    plt_3.set_xticklabels(state_names, rotation="vertical")
+
+    y_formatter: FuncFormatter = FuncFormatter(comma_format_int())
 
     plt_3.set_ylabel("Priority value")
     plt_3.set_yscale("log")
-    plt_3.get_yaxis().set_major_formatter(
-        ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+    plt_3.get_yaxis().set_major_formatter(y_formatter)
     plt_3.text(0.3, 0.9, "Highlighted, is the state with the highest priority value",
                transform=plt_3.transAxes)
 
@@ -446,6 +451,7 @@ def main() -> None:
 
     x_pos: np.ndarray = np.arange(len(state_info_list))
 
+    format_plt(plt)
     (plt_1_bars, mean_line, txt_dict) = format_plot_1(
         plt_1, x_pos, pop_per_rep_list, state_names)
     plt_2_bars: BarContainer = format_plot_2(
@@ -454,7 +460,6 @@ def main() -> None:
         plt_3, x_pos, priority_list, state_names)
     format_plot_4(plt_4)
 
-    format_plt(plt)
 
     plt_bars_dict: PlotBarsDict = {"plt_1_bars": plt_1_bars,
                                    "plt_2_bars": plt_2_bars,
