@@ -1,10 +1,16 @@
+"""
+usage:
+python3 source/bar-chart.py file
+description:
+Show an animation of the Huntington–Hill apportionment method
+"""
 # TODO
 
 import csv
 import math
 import operator
 from argparse import ArgumentParser
-from typing import Dict, Iterable, List, Tuple, Type, Union
+from typing import Dict, List, Tuple, Union, Callable
 
 import matplotlib
 import matplotlib.animation as animation
@@ -18,8 +24,6 @@ from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
 from matplotlib.text import Text
 from matplotlib.ticker import FuncFormatter
-from scipy.stats.mstats import gmean
-
 
 # dict with name, pop, priority values, pop_per_rep, and is max pri
 StateInfo = Dict[str, Union[str, int, float, bool]]
@@ -34,8 +38,7 @@ PlotBarsDict = Dict[str, BarContainer]
 
 
 def extract_csv(fname: str) -> List[SimpleStateInfo]:
-    """ 
-    Turn the states in the csv file to a Python data structure.
+    """Turn the states in the csv file to a Python data structure.
     Parameters
     ----------
     fname: `str`
@@ -53,8 +56,7 @@ def extract_csv(fname: str) -> List[SimpleStateInfo]:
 
 
 def parse_states(raw_csv: List[SimpleStateInfo]) -> List[StateInfo]:
-    """
-    Calculate the priority value, population per representative,
+    """Calculate the priority value, population per representative,
     and number of representatives for each state.
     Parameters
     ----------
@@ -88,13 +90,18 @@ def parse_states(raw_csv: List[SimpleStateInfo]) -> List[StateInfo]:
     return state_info_list
 
 
-def comma_format_int():
+def comma_format_int() -> Callable:
+    """Return a function that formats a number with a maginute comma
+    Returns
+    -------
+    `Callable`
+        The formatting function
+    """
     return lambda x, p: "{:,}".format(int(x))
 
 
 def calc_geo_mean(array: List[float]) -> float:
-    """
-    Calculate the geometric mean of an array of floats.
+    """Calculate the geometric mean of an array of floats.
     Parameters
     ----------
     array : `List[float]`
@@ -105,17 +112,16 @@ def calc_geo_mean(array: List[float]) -> float:
     `float`
         The average of the products of the values
     """
-    a: np.ndarray = np.log(array)
-    return np.exp(a.sum()/len(a))
+    arr: np.ndarray = np.log(array)
+    return np.exp(arr.sum()/len(arr))
 
 
 def format_plot_1(
         plt_1: Axes, x_vals: List[int],
         pop_per_rep_list: List[float],
         state_names: List[str]) -> PlotProps:
-    """
-    Add the x & y ticks, format those ticks, set the title,
-    draw the mean line, and place the text on the plot for 
+    """Add the x & y ticks, format those ticks, set the title,
+    draw the mean line, and place the text on the plot for
     the pop_per_rep plot.
     Parameters
     ----------
@@ -178,8 +184,7 @@ def format_plot_2(
         plt_2: Axes, x_vals: List[int],
         reps_list: List[int],
         state_names: List[str]) -> BarContainer:
-    """
-    Add the x & y ticks, format those ticks, set the title,
+    """Add the x & y ticks, format those ticks, set the title,
     and place the text on the plot for the number of reps plot.
     Parameters
     ----------
@@ -214,8 +219,7 @@ def format_plot_3(
         plt_3: Axes, x_vals: List[int],
         priority_list: List[float],
         state_names: List[str]) -> BarContainer:
-    """
-    Add the x & y ticks, format those ticks, set the title,
+    """Add the x & y ticks, format those ticks, set the title,
     and place the text on the plot for the priority num plot.
     Parameters
     ----------
@@ -252,8 +256,7 @@ def format_plot_3(
 
 
 def format_plot_4(plt_4: Axes) -> None:
-    """
-    Add the x & y ticks, format those ticks, set the title, 
+    """Add the x & y ticks, format those ticks, set the title,
     and place the text on the plot for the empty text plot.
     Parameters
     ----------
@@ -266,9 +269,8 @@ def format_plot_4(plt_4: Axes) -> None:
     plt_4.axis("off")
 
 
-def format_plt(plt: matplotlib.pyplot) -> None:
-    """
-    Adjust plot level properties (all subplots but not the entire window)
+def format_plt() -> None:
+    """Adjust plot level properties (all subplots but not the entire window)
     Parameters
     ----------
     plt : `matplotlib.pyplot`
@@ -286,8 +288,7 @@ def format_plt(plt: matplotlib.pyplot) -> None:
 
 
 def init_anim() -> None:
-    """ 
-    Called very first on Matplotlib's `FuncAnimation`.
+    """ Called very first on Matplotlib's `FuncAnimation`.
     Nothing needs to be done. All initialization is done
     in the `format_plt_x` functions.
     """
@@ -297,9 +298,8 @@ def init_anim() -> None:
 def animate(
         frame: int, state_info_list: List[StateInfo],
         plt_bars_dict: PlotBarsDict, txt_dict: PlotTextDict, mean_line: Line2D) -> None:
-    """
-    Called every frame of Matplotlib's `FuncAnimation`. Calculate the 
-    new priority values and reps in each state. This is passed the 
+    """Called every frame of Matplotlib's `FuncAnimation`. Calculate the
+    new priority values and reps in each state. This is passed the
     properties about each of the subplots that we need to update and
     the previous frame's finished calculations. This makes calls to
     other functions that update each individual plot.
@@ -342,8 +342,7 @@ def animate(
 def update_plt1(
         plt_1_bars: BarContainer, state_info_list: List[StateInfo],
         mean_line: Line2D, txt_dict: PlotTextDict, frame: int) -> None:
-    """
-    Re-plot all of the bars, move the mean line, and set the text of everything on 
+    """Re-plot all of the bars, move the mean line, and set the text of everything on
     plot 1 with newly calculated data.
     Parameters
     ----------
@@ -390,8 +389,7 @@ def update_plt1(
 
 
 def update_plt2(plt_2_bars: BarContainer, state_info_list: List[StateInfo]) -> None:
-    """
-    Re-plot all of the bars on plot 2 with newly calculated data.
+    """Re-plot all of the bars on plot 2 with newly calculated data.
     Parameters
     ----------
     plt_2_bars : `BarContainer`
@@ -404,8 +402,7 @@ def update_plt2(plt_2_bars: BarContainer, state_info_list: List[StateInfo]) -> N
 
 
 def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> None:
-    """
-    Re-plot all of the bars on plot 3 with newly calculated data.
+    """Re-plot all of the bars on plot 3 with newly calculated data.
     Parameters
     ----------
     plt_3_bars : `BarContainer`
@@ -421,10 +418,9 @@ def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> N
 
 
 def main() -> None:
-    """ 
-    Show an animation of the Huntington–Hill apportionment method
-    """
+    """Run all executable code"""
     matplotlib.use("Qt5Agg")
+    format_plt()
 
     parser: ArgumentParser = ArgumentParser(
         prog="python3 source/bar-chart.py",
@@ -446,7 +442,6 @@ def main() -> None:
         map(operator.itemgetter("priority"), state_info_list))
 
     fig: Figure = plt.figure()
-    format_plt(plt)
 
     plt_1: Axes = fig.add_subplot(221)
     plt_2: Axes = fig.add_subplot(222)
@@ -472,9 +467,9 @@ def main() -> None:
     anim: Animation = animation.FuncAnimation(  # pylint: disable=unused-variable
         fig, animate, fargs=(state_info_list, plt_bars_dict, txt_dict, mean_line), init_func=init_anim, frames=frames, interval=100, repeat=False)
 
-    figManager: FigureManagerQT = plt.get_current_fig_manager()
-    figManager.window.showMaximized()
-    figManager.set_window_title(
+    fig_manager: FigureManagerQT = plt.get_current_fig_manager()
+    fig_manager.window.showMaximized()
+    fig_manager.set_window_title(
         "CGP Grey Electoral College speadsheet animated")
 
     plt.show()
