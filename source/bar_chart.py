@@ -284,12 +284,12 @@ def format_plt() -> None:
     """Adjust plot level properties (all subplots but not the entire window)"""
     plt.style.use("seaborn-dark")
 
-    plt.subplots_adjust(top=0.963,
-                        bottom=0.124,
-                        left=0.057,
-                        right=0.992,
-                        hspace=0.418,
-                        wspace=0.063)
+    plt.subplots_adjust(top=0.955,
+                        bottom=0.149,
+                        left=0.067,
+                        right=0.991,
+                        hspace=0.553,
+                        wspace=0.075)
 
 
 def init_anim() -> None:
@@ -446,7 +446,7 @@ def main() -> None:
     priority_list: List[float] = list(
         map(operator.itemgetter("priority"), state_info_list))
 
-    fig: Figure = plt.figure()
+    fig: Figure = plt.figure(figsize=(16, 9), dpi=120)
 
     format_plt()
 
@@ -478,7 +478,6 @@ def main() -> None:
         save_count=0, cache_frame_data=False)
 
     fig_manager: FigureManagerQT = plt.get_current_fig_manager()
-    fig_manager.window.showMaximized()
     fig_manager.set_window_title(
         "CGP Grey Electoral College speadsheet animated")
 
