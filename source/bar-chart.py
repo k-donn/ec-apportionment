@@ -5,6 +5,8 @@ description:
 Show an animation of the Huntington–Hill apportionment method
 """
 # TODO
+# Use blitting
+# Make docstring spacing consistent (new-line after sections)
 
 import csv
 import math
@@ -39,10 +41,12 @@ PlotBarsDict = Dict[str, BarContainer]
 
 def extract_csv(fname: str) -> List[SimpleStateInfo]:
     """Turn the states in the csv file to a Python data structure.
+
     Parameters
     ----------
     fname: `str`
         Path to CSV state population data
+
     Returns
     -------
     `List[SimpleStateInfo]`
@@ -91,7 +95,9 @@ def parse_states(raw_csv: List[SimpleStateInfo]) -> List[StateInfo]:
 
 
 def comma_format_int() -> Callable:
-    """Return a function that formats a number with a maginute comma
+    """Return a function that formats a number with a maginute comma.
+    Future Me, I refactored this to a function because it has multiple
+    references. Don't delete this.
     Returns
     -------
     `Callable`
@@ -270,21 +276,16 @@ def format_plot_4(plt_4: Axes) -> None:
 
 
 def format_plt() -> None:
-    """Adjust plot level properties (all subplots but not the entire window)
-    Parameters
-    ----------
-    plt : `matplotlib.pyplot`
-        The matplotlib `pyplot` module
-
+    """Adjust plot level properties (all subplots but not the entire window).
     """
     plt.style.use("seaborn-dark")
 
     plt.subplots_adjust(top=0.963,
-                        bottom=0.142,
-                        left=0.064,
-                        right=0.986,
-                        hspace=0.495,
-                        wspace=0.072)
+                        bottom=0.124,
+                        left=0.057,
+                        right=0.992,
+                        hspace=0.418,
+                        wspace=0.063)
 
 
 def init_anim() -> None:
@@ -316,11 +317,9 @@ def animate(
     mean_line : `Line2D`
         The object describing the mean-line in the first plot
     """
-    # print(f"Frame #{frame + 1}")
     for state_info in state_info_list:
         if state_info["max_pri"]:
             state_info["reps"] = state_info["reps"] + 1
-            # print(f"Adding to {state_info['name']}")
             state_info["max_pri"] = False
 
     for state_info in state_info_list:
@@ -420,7 +419,6 @@ def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> N
 def main() -> None:
     """Run all executable code"""
     matplotlib.use("Qt5Agg")
-    format_plt()
 
     parser: ArgumentParser = ArgumentParser(
         prog="python3 source/bar-chart.py",
@@ -443,6 +441,8 @@ def main() -> None:
 
     fig: Figure = plt.figure()
 
+    format_plt()
+
     plt_1: Axes = fig.add_subplot(221)
     plt_2: Axes = fig.add_subplot(222)
     plt_3: Axes = fig.add_subplot(223)
@@ -462,10 +462,11 @@ def main() -> None:
                                    "plt_2_bars": plt_2_bars,
                                    "plt_3_bars": plt_3_bars}
 
-    frames: int = 100
+    frames: int = 385
     # This doesn't work if FuncAnimation isn't assigned to a value, hence, add disable-unused for `anim`
     anim: Animation = animation.FuncAnimation(  # pylint: disable=unused-variable
-        fig, animate, fargs=(state_info_list, plt_bars_dict, txt_dict, mean_line), init_func=init_anim, frames=frames, interval=100, repeat=False)
+        fig, animate, fargs=(state_info_list, plt_bars_dict, txt_dict, mean_line),
+        init_func=init_anim, frames=frames, interval=100, repeat=False, save_count=0, cache_frame_data=False)
 
     fig_manager: FigureManagerQT = plt.get_current_fig_manager()
     fig_manager.window.showMaximized()
