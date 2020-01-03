@@ -1,12 +1,11 @@
 """
 usage:
-python3 source/bar-chart.py file
+python3 source/bar_chart.py file
 description:
 Show an animation of the Huntington–Hill apportionment method
 """
 # TODO
 # Use blitting
-# Make docstring spacing consistent (new-line after sections)
 
 import csv
 import math
@@ -62,11 +61,11 @@ def extract_csv(fname: str) -> List[SimpleStateInfo]:
 def parse_states(raw_csv: List[SimpleStateInfo]) -> List[StateInfo]:
     """Calculate the priority value, population per representative,
     and number of representatives for each state.
+
     Parameters
     ----------
     raw_csv : `List[SimpleStateInfo]`
         The list of the population and name for each state
-
 
     Returns
     -------
@@ -98,6 +97,7 @@ def comma_format_int() -> Callable:
     """Return a function that formats a number with a maginute comma.
     Future Me, I refactored this to a function because it has multiple
     references. Don't delete this.
+
     Returns
     -------
     `Callable`
@@ -108,6 +108,7 @@ def comma_format_int() -> Callable:
 
 def calc_geo_mean(array: List[float]) -> float:
     """Calculate the geometric mean of an array of floats.
+
     Parameters
     ----------
     array : `List[float]`
@@ -129,6 +130,7 @@ def format_plot_1(
     """Add the x & y ticks, format those ticks, set the title,
     draw the mean line, and place the text on the plot for
     the pop_per_rep plot.
+
     Parameters
     ----------
     plt_1 : `Axes`
@@ -192,6 +194,7 @@ def format_plot_2(
         state_names: List[str]) -> BarContainer:
     """Add the x & y ticks, format those ticks, set the title,
     and place the text on the plot for the number of reps plot.
+
     Parameters
     ----------
     plt_2 : `Axes`
@@ -227,6 +230,7 @@ def format_plot_3(
         state_names: List[str]) -> BarContainer:
     """Add the x & y ticks, format those ticks, set the title,
     and place the text on the plot for the priority num plot.
+
     Parameters
     ----------
     plt_3 : `Axes`
@@ -264,6 +268,7 @@ def format_plot_3(
 def format_plot_4(plt_4: Axes) -> None:
     """Add the x & y ticks, format those ticks, set the title,
     and place the text on the plot for the empty text plot.
+
     Parameters
     ----------
     plt_4 : `Axes`
@@ -276,8 +281,7 @@ def format_plot_4(plt_4: Axes) -> None:
 
 
 def format_plt() -> None:
-    """Adjust plot level properties (all subplots but not the entire window).
-    """
+    """Adjust plot level properties (all subplots but not the entire window)"""
     plt.style.use("seaborn-dark")
 
     plt.subplots_adjust(top=0.963,
@@ -291,8 +295,7 @@ def format_plt() -> None:
 def init_anim() -> None:
     """ Called very first on Matplotlib's `FuncAnimation`.
     Nothing needs to be done. All initialization is done
-    in the `format_plt_x` functions.
-    """
+    in the `format_plt_x` functions."""
     return
 
 
@@ -304,6 +307,7 @@ def animate(
     properties about each of the subplots that we need to update and
     the previous frame's finished calculations. This makes calls to
     other functions that update each individual plot.
+
     Parameters
     ----------
     frame : `int`
@@ -343,6 +347,7 @@ def update_plt1(
         mean_line: Line2D, txt_dict: PlotTextDict, frame: int) -> None:
     """Re-plot all of the bars, move the mean line, and set the text of everything on
     plot 1 with newly calculated data.
+
     Parameters
     ----------
     plt_1_bars : `BarContainer`
@@ -383,12 +388,13 @@ def update_plt1(
     mean_line.set_xdata([0, 1.0])
     mean_line.set_ydata([mean_pop_per_seat])
 
-    for bar, state_info in zip(plt_1_bars, state_info_list):
-        bar.set_height(state_info["pop_per_rep"])
+    for state, state_info in zip(plt_1_bars, state_info_list):
+        state.set_height(state_info["pop_per_rep"])
 
 
 def update_plt2(plt_2_bars: BarContainer, state_info_list: List[StateInfo]) -> None:
     """Re-plot all of the bars on plot 2 with newly calculated data.
+
     Parameters
     ----------
     plt_2_bars : `BarContainer`
@@ -396,12 +402,13 @@ def update_plt2(plt_2_bars: BarContainer, state_info_list: List[StateInfo]) -> N
     state_info_list : `List[StateInfo]`
         The parsed attributes about each of the states (pop_per_rep, priority values, etc.)
     """
-    for bar, state_info in zip(plt_2_bars, state_info_list):
-        bar.set_height(state_info["reps"])
+    for state, state_info in zip(plt_2_bars, state_info_list):
+        state.set_height(state_info["reps"])
 
 
 def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> None:
     """Re-plot all of the bars on plot 3 with newly calculated data.
+
     Parameters
     ----------
     plt_3_bars : `BarContainer`
@@ -409,11 +416,11 @@ def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> N
     state_info_list : `List[StateInfo]`
         The parsed attributes about each of the states (pop_per_rep, priority values, etc.)
     """
-    for bar, state_info in zip(plt_3_bars, state_info_list):
-        bar.set_color("g")
+    for state, state_info in zip(plt_3_bars, state_info_list):
+        state.set_color("g")
         if state_info["max_pri"]:
-            bar.set_color("r")
-        bar.set_height(state_info["priority"])
+            state.set_color("r")
+        state.set_height(state_info["priority"])
 
 
 def main() -> None:
@@ -421,7 +428,7 @@ def main() -> None:
     matplotlib.use("Qt5Agg")
 
     parser: ArgumentParser = ArgumentParser(
-        prog="python3 source/bar-chart.py",
+        prog="python3 source/bar_chart.py",
         description="Show an animation of the Huntington–Hill apportionment method")
     parser.add_argument("file", help="Path to CSV state population data")
 
@@ -463,10 +470,12 @@ def main() -> None:
                                    "plt_3_bars": plt_3_bars}
 
     frames: int = 385
-    # This doesn't work if FuncAnimation isn't assigned to a value, hence, add disable-unused for `anim`
+    # This doesn't work if FuncAnimation isn't assigned to a value,
+    #  therefore, add disable-unused for `anim`
     anim: Animation = animation.FuncAnimation(  # pylint: disable=unused-variable
         fig, animate, fargs=(state_info_list, plt_bars_dict, txt_dict, mean_line),
-        init_func=init_anim, frames=frames, interval=100, repeat=False, save_count=0, cache_frame_data=False)
+        init_func=init_anim, frames=frames, interval=100, repeat=False,
+        save_count=0, cache_frame_data=False)
 
     fig_manager: FigureManagerQT = plt.get_current_fig_manager()
     fig_manager.window.showMaximized()

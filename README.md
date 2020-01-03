@@ -12,7 +12,7 @@ See [Running](#running) for instructions on how to get started
 -   From the root of the folder,
 
 ```
-python3 ./source/bar-chart.py ./data/state-populations.csv
+python3 ./source/bar_chart.py ./data/state-populations.csv
 ```
 
 -   If there are any errors, they are most likely backend related.
