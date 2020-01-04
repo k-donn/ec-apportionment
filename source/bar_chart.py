@@ -11,13 +11,13 @@ import csv
 import math
 import operator
 from argparse import ArgumentParser
-from typing import Dict, List, Tuple, Union, Callable
+from typing import Dict, List, Tuple, Union, Callable, NoReturn
 
 import matplotlib
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.animation import Animation
+from matplotlib.animation import Animation, FFMpegWriter
 from matplotlib.axes._subplots import Axes
 from matplotlib.backends.backend_qt5 import FigureManagerQT
 from matplotlib.container import BarContainer
@@ -265,7 +265,7 @@ def format_plot_3(
     return plt_3_bars
 
 
-def format_plot_4(plt_4: Axes) -> None:
+def format_plot_4(plt_4: Axes) -> NoReturn:
     """Add the x & y ticks, format those ticks, set the title,
     and place the text on the plot for the empty text plot.
 
@@ -280,7 +280,7 @@ def format_plot_4(plt_4: Axes) -> None:
     plt_4.axis("off")
 
 
-def format_plt() -> None:
+def format_plt() -> NoReturn:
     """Adjust plot level properties (all subplots but not the entire window)"""
     plt.style.use("seaborn-dark")
 
@@ -301,7 +301,7 @@ def init_anim() -> None:
 
 def animate(
         frame: int, state_info_list: List[StateInfo],
-        plt_bars_dict: PlotBarsDict, txt_dict: PlotTextDict, mean_line: Line2D) -> None:
+        plt_bars_dict: PlotBarsDict, txt_dict: PlotTextDict, mean_line: Line2D) -> NoReturn:
     """Called every frame of Matplotlib's `FuncAnimation`. Calculate the
     new priority values and reps in each state. This is passed the
     properties about each of the subplots that we need to update and
@@ -344,7 +344,7 @@ def animate(
 
 def update_plt1(
         plt_1_bars: BarContainer, state_info_list: List[StateInfo],
-        mean_line: Line2D, txt_dict: PlotTextDict, frame: int) -> None:
+        mean_line: Line2D, txt_dict: PlotTextDict, frame: int) -> NoReturn:
     """Re-plot all of the bars, move the mean line, and set the text of everything on
     plot 1 with newly calculated data.
 
@@ -392,7 +392,7 @@ def update_plt1(
         state.set_height(state_info["pop_per_rep"])
 
 
-def update_plt2(plt_2_bars: BarContainer, state_info_list: List[StateInfo]) -> None:
+def update_plt2(plt_2_bars: BarContainer, state_info_list: List[StateInfo]) -> NoReturn:
     """Re-plot all of the bars on plot 2 with newly calculated data.
 
     Parameters
@@ -406,7 +406,7 @@ def update_plt2(plt_2_bars: BarContainer, state_info_list: List[StateInfo]) -> N
         state.set_height(state_info["reps"])
 
 
-def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> None:
+def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> NoReturn:
     """Re-plot all of the bars on plot 3 with newly calculated data.
 
     Parameters
@@ -423,7 +423,7 @@ def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> N
         state.set_height(state_info["priority"])
 
 
-def main() -> None:
+def main() -> NoReturn:
     """Run all executable code"""
     matplotlib.use("Qt5Agg")
 
@@ -469,6 +469,9 @@ def main() -> None:
                                    "plt_2_bars": plt_2_bars,
                                    "plt_3_bars": plt_3_bars}
 
+    writer = FFMpegWriter(fps=5, bitrate=250000, extra_args=["-minrate", "650k", "-maxrate", "1M"],
+                          metadata=dict(title="/u/ilikeplanes86"))
+
     frames: int = 385
     # This doesn't work if FuncAnimation isn't assigned to a value,
     #  therefore, add disable-unused for `anim`
@@ -481,7 +484,7 @@ def main() -> None:
     fig_manager.set_window_title(
         "CGP Grey Electoral College speadsheet animated")
 
-    plt.show()
+    anim.save("recordings/2020-1-3.mp4", writer=writer)
 
 
 if __name__ == "__main__":
