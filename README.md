@@ -16,7 +16,6 @@ python3 ./source/bar_chart.py ./data/state-populations.csv
 ```
 
 -   If there are any errors, they are most likely backend related.
--   Adjust code to use whatever backend you have on your system (project is Qt5Agg)
 
 ## Meta
 

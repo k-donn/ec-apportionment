@@ -5,24 +5,25 @@ description:
 Show an animation of the Huntington–Hill apportionment method
 """
 # TODO
-# Use blitting
+# add debug show plot instead of record
 
 import csv
 import math
 import operator
 from argparse import ArgumentParser
-from typing import Dict, List, Tuple, Union, Callable, NoReturn
+from typing import Callable, Dict, List, NoReturn, Tuple, Union
 
-import matplotlib
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import Animation, FFMpegWriter
+from matplotlib.artist import Artist
 from matplotlib.axes._subplots import Axes
 from matplotlib.backends.backend_qt5 import FigureManagerQT
 from matplotlib.container import BarContainer
 from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
+from matplotlib.patches import Rectangle
 from matplotlib.text import Text
 from matplotlib.ticker import FuncFormatter
 
@@ -175,11 +176,11 @@ def format_plot_1(
     res_dict["mean_txt"] = plt_1.text(
         0.45, 0.75, f"Mean: {mean_pop_per_seat:,.2f}", transform=plt_1.transAxes)
     res_dict["std_dev_txt"] = plt_1.text(
-        0.35, 0.85, f"Std. Dev. {std_dev_pop_per_seat}", transform=plt_1.transAxes)
+        0.35, 0.85, f"Std. Dev. {std_dev_pop_per_seat:,.2f}", transform=plt_1.transAxes)
     res_dict["range_txt"] = plt_1.text(
-        0.70, 0.75, f"Range: {range_pop_per_seat}", transform=plt_1.transAxes)
+        0.70, 0.75, f"Range: {range_pop_per_seat:,.2f}", transform=plt_1.transAxes)
     res_dict["geo_mean_txt"] = plt_1.text(
-        0.6, 0.85, f"Geo. Mean: {geo_mean_pop_per_seat}", transform=plt_1.transAxes)
+        0.6, 0.85, f"Geo. Mean: {geo_mean_pop_per_seat:,.2f}", transform=plt_1.transAxes)
     mean_line: Line2D = plt_1.axhline(y=mean_pop_per_seat,
                                       xmin=0.0, xmax=1.0, color="r")
 
@@ -292,16 +293,43 @@ def format_plt() -> NoReturn:
                         wspace=0.075)
 
 
-def init_anim() -> None:
-    """ Called very first on Matplotlib's `FuncAnimation`.
-    Nothing needs to be done. All initialization is done
-    in the `format_plt_x` functions."""
-    return
+def init_anim_factory(
+        plt_bars_dict: PlotBarsDict, txt_dict: PlotTextDict, mean_line: Line2D) -> Callable:
+    """Create an init_anim function that returns the needed artists. init_anim() doesn't
+    allow for custom parameters to be passed. Therefore, we make them here
+
+    state_info_list : `List[StateInfo]`
+        The parsed attributes about each of the states (pop_per_rep, priority values, etc.)
+    plt_bars_dict : `PlotBarsDict`
+        A dictionary that links the name of each plot to its respective `BarContainer` instance
+    txt_dict : `PlotTextDict`
+        A dictionary that links the name of each text property to its `Text` object
+    mean_line : `Line2D`
+        The object describing the mean-line in the first plot
+
+    Returns
+    -------
+    `Callable`
+        The init_anim function that returns the initial artists on the plot"""
+    def init_anim() -> List:
+        """Return the initial artists on the plot for the blitting algorithm to use
+
+        Returns
+        -------
+        `List[Artist]`
+            All of the bars, texts, and the mean line on the plot.
+        """
+        bars: List[Rectangle] = [artist
+                                 for container in list(plt_bars_dict.values()) for artist in container]
+        txts: List[Text] = list(txt_dict.values())
+
+        return bars + txts + [mean_line]
+    return init_anim
 
 
 def animate(
         frame: int, state_info_list: List[StateInfo],
-        plt_bars_dict: PlotBarsDict, txt_dict: PlotTextDict, mean_line: Line2D) -> NoReturn:
+        plt_bars_dict: PlotBarsDict, txt_dict: PlotTextDict, mean_line: Line2D) -> List[Artist]:
     """Called every frame of Matplotlib's `FuncAnimation`. Calculate the
     new priority values and reps in each state. This is passed the
     properties about each of the subplots that we need to update and
@@ -320,6 +348,11 @@ def animate(
         A dictionary that links the name of each text property to its `Text` object
     mean_line : `Line2D`
         The object describing the mean-line in the first plot
+
+    Returns
+    -------
+    `List[Artist]`
+        All of the artists that the blitting algorithm needs to update
     """
     for state_info in state_info_list:
         if state_info["max_pri"]:
@@ -340,6 +373,12 @@ def animate(
                 txt_dict, frame)
     update_plt2(plt_bars_dict["plt_2_bars"], state_info_list)
     update_plt3(plt_bars_dict["plt_3_bars"], state_info_list)
+
+    bars: List[Rectangle] = [artist for container in list(
+        plt_bars_dict.values()) for artist in container]
+    txts: List[Text] = list(txt_dict.values())
+
+    return bars + txts + [mean_line]
 
 
 def update_plt1(
@@ -381,7 +420,7 @@ def update_plt1(
     txt_dict["std_dev_txt"].set_text(
         f"Std. Dev. {std_dev_pop_per_seat:,.2f}")
     txt_dict["range_txt"].set_text(
-        f"Range: {range_pop_per_seat}")
+        f"Range: {range_pop_per_seat:,.2f}")
     txt_dict["geo_mean_txt"].set_text(
         f"Geo. Mean: {geo_mean_pop_per_seat:,.2f}")
 
@@ -425,7 +464,6 @@ def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> N
 
 def main() -> NoReturn:
     """Run all executable code"""
-    matplotlib.use("Qt5Agg")
 
     parser: ArgumentParser = ArgumentParser(
         prog="python3 source/bar_chart.py",
@@ -477,14 +515,14 @@ def main() -> NoReturn:
     #  therefore, add disable-unused for `anim`
     anim: Animation = animation.FuncAnimation(  # pylint: disable=unused-variable
         fig, animate, fargs=(state_info_list, plt_bars_dict, txt_dict, mean_line),
-        init_func=init_anim, frames=frames, interval=100, repeat=False,
-        save_count=0, cache_frame_data=False)
+        init_func=init_anim_factory(plt_bars_dict, txt_dict, mean_line),
+        frames=frames, repeat=False, blit=True)
 
     fig_manager: FigureManagerQT = plt.get_current_fig_manager()
     fig_manager.set_window_title(
         "CGP Grey Electoral College speadsheet animated")
 
-    anim.save("recordings/2020-1-3.mp4", writer=writer)
+    anim.save("recordings/ec-apportionment.mp4", writer=writer)
 
 
 if __name__ == "__main__":
