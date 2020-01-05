@@ -5,7 +5,7 @@ description:
 Show an animation of the Huntington–Hill apportionment method
 """
 # TODO
-# add debug show plot instead of record
+# Refactor main() to have less local variables
 
 import csv
 import math
@@ -468,7 +468,9 @@ def main() -> NoReturn:
     parser: ArgumentParser = ArgumentParser(
         prog="python3 source/bar_chart.py",
         description="Show an animation of the Huntington–Hill apportionment method")
-    parser.add_argument("file", help="Path to CSV state population data")
+    parser.add_argument("-f", "--file", required=True, help="Path to CSV state population data")
+    parser.add_argument("-d", "--debug", action="store_true",
+                        help="Show the plot instead of writing to file")
 
     args = parser.parse_args()
 
@@ -522,7 +524,10 @@ def main() -> NoReturn:
     fig_manager.set_window_title(
         "CGP Grey Electoral College speadsheet animated")
 
-    anim.save("recordings/ec-apportionment.mp4", writer=writer)
+    if args.debug:
+        plt.show()
+    else:
+        anim.save("recordings/ec-apportionment.mp4", writer=writer)
 
 
 if __name__ == "__main__":
