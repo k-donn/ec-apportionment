@@ -25,7 +25,7 @@ from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle
 from matplotlib.text import Text
-from matplotlib.ticker import FuncFormatter
+from matplotlib.ticker import FuncFormatter, MultipleLocator
 
 # dict with name, pop, priority values, pop_per_rep, and is max pri
 StateInfo = Dict[str, Union[str, int, float, bool]]
@@ -149,7 +149,8 @@ def format_plot_1(
         A tuple of the plotted bars, text, and line objects
     """
     plt_1_bars: BarContainer = plt_1.bar(x_vals, pop_per_rep_list,
-                                         align="center", alpha=0.5)
+                                         align="center")
+
     plt_1.set_xticks(x_vals)
     plt_1.set_xticklabels(state_names, rotation="vertical")
 
@@ -159,7 +160,11 @@ def format_plot_1(
     plt_1.set_yscale("log")
     plt_1.get_yaxis().set_major_formatter(y_formatter)
 
-    plt_1.set_title("Progression of people per representative in each state.")
+    plt_1.set_title("People per representative per state")
+
+    plt_1.grid(axis="y", which="major", lw=2)
+    plt_1.grid(axis="y", which="minor", lw=0.75)
+    plt_1.grid(axis="x", lw=0.75)
 
     mean_pop_per_seat: float = np.mean(pop_per_rep_list)
     std_dev_pop_per_seat: float = np.std(pop_per_rep_list)
@@ -184,7 +189,8 @@ def format_plot_1(
     mean_line: Line2D = plt_1.axhline(y=mean_pop_per_seat,
                                       xmin=0.0, xmax=1.0, color="r")
 
-    plt_1.text(0.0, 0.0, "/u/ilikeplanes86", transform=plt_1.transAxes)
+    plt_1.text(1.0, 1.0, "/u/ilikeplanes86", transform=plt_1.transAxes,
+               ha="right", va="top")
 
     return (plt_1_bars, mean_line, res_dict)
 
@@ -213,14 +219,23 @@ def format_plot_2(
         The objects describing the plotted bars
     """
     plt_2_bars: BarContainer = plt_2.bar(
-        x_vals, reps_list, align="center", alpha=0.5, color="r")
+        x_vals, reps_list, align="center", color="r")
     plt_2.set_xticks(x_vals)
     plt_2.set_xticklabels(state_names, rotation="vertical")
+
+    y_axis = plt_2.get_yaxis()
+
+    minor_loc = MultipleLocator(5)
+    y_axis.set_minor_locator(minor_loc)
 
     plt_2.set_ylabel("Representatives")
     plt_2.set_ylim(top=60, bottom=0)
 
-    plt_2.set_title("Number of representatives in each state")
+    plt_2.grid(axis="y", which="major", lw=2)
+    plt_2.grid(axis="y", which="minor", lw=0.75)
+    plt_2.grid(axis="x", lw=0.75)
+
+    plt_2.set_title("Representatives per state")
 
     return plt_2_bars
 
@@ -249,7 +264,7 @@ def format_plot_3(
         The objects describing the plotted bars
     """
     plt_3_bars: BarContainer = plt_3.bar(x_vals, priority_list,
-                                         align="center", alpha=0.5, color="g")
+                                         align="center", color="g")
     plt_3.set_xticks(x_vals)
     plt_3.set_xticklabels(state_names, rotation="vertical")
 
@@ -261,7 +276,11 @@ def format_plot_3(
     plt_3.text(0.3, 0.9, "Highlighted, is the state with the highest priority value",
                transform=plt_3.transAxes)
 
-    plt_3.set_title("Priority values for each state")
+    plt_3.grid(axis="y", which="major", lw=2)
+    plt_3.grid(axis="y", which="minor", lw=0.75)
+    plt_3.grid(axis="x", lw=0.75)
+
+    plt_3.set_title("Priority values per state")
 
     return plt_3_bars
 
