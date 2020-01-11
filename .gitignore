@@ -2,3 +2,4 @@
 *.mp4
 *.old.py
 .DS_STORE
+__pycache__/

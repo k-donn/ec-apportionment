@@ -51,6 +51,7 @@ def extract_csv(fname: str) -> List[SimpleStateInfo]:
     -------
     `List[SimpleStateInfo]`
         The name and population of each state in the file
+
     """
     res: List[SimpleStateInfo]
     with open(fname) as inp:
@@ -60,8 +61,8 @@ def extract_csv(fname: str) -> List[SimpleStateInfo]:
 
 
 def parse_states(raw_csv: List[SimpleStateInfo]) -> List[StateInfo]:
-    """Calculate the priority value, population per representative,
-    and number of representatives for each state.
+    """Calculate the priority value, population per representative, and number
+    of representatives for each state.
 
     Parameters
     ----------
@@ -72,6 +73,7 @@ def parse_states(raw_csv: List[SimpleStateInfo]) -> List[StateInfo]:
     -------
     `List[StateInfo]`
         A list of the parsed attributes
+
     """
     max_priority = 0
     state_info_list = []
@@ -95,14 +97,15 @@ def parse_states(raw_csv: List[SimpleStateInfo]) -> List[StateInfo]:
 
 
 def comma_format_int() -> Callable:
-    """Return a function that formats a number with a maginute comma.
-    Future Me, I refactored this to a function because it has multiple
-    references. Don't delete this.
+    """Return a function that formats a number with a maginute comma. Future Me,
+    I refactored this to a function because it has multiple references. Don't
+    delete this.
 
     Returns
     -------
     `Callable`
         The formatting function
+
     """
     return lambda x, p: "{:,}".format(int(x))
 
@@ -119,6 +122,7 @@ def calc_geo_mean(array: List[float]) -> float:
     -------
     `float`
         The average of the products of the values
+
     """
     arr: np.ndarray = np.log(array)
     return np.exp(arr.sum()/len(arr))
@@ -128,9 +132,8 @@ def format_plot_1(
         plt_1: Axes, x_vals: List[int],
         pop_per_rep_list: List[float],
         state_names: List[str]) -> PlotProps:
-    """Add the x & y ticks, format those ticks, set the title,
-    draw the mean line, and place the text on the plot for
-    the pop_per_rep plot.
+    """Add the x & y ticks, format those ticks, set the title, draw the mean
+    line, and place the text on the plot for the pop_per_rep plot.
 
     Parameters
     ----------
@@ -147,6 +150,7 @@ def format_plot_1(
     -------
     `PlotProps`
         A tuple of the plotted bars, text, and line objects
+
     """
     plt_1_bars: BarContainer = plt_1.bar(x_vals, pop_per_rep_list,
                                          align="center")
@@ -199,8 +203,8 @@ def format_plot_2(
         plt_2: Axes, x_vals: List[int],
         reps_list: List[int],
         state_names: List[str]) -> BarContainer:
-    """Add the x & y ticks, format those ticks, set the title,
-    and place the text on the plot for the number of reps plot.
+    """Add the x & y ticks, format those ticks, set the title, and place the
+    text on the plot for the number of reps plot.
 
     Parameters
     ----------
@@ -217,6 +221,7 @@ def format_plot_2(
     -------
     `BarContainer`
         The objects describing the plotted bars
+
     """
     plt_2_bars: BarContainer = plt_2.bar(
         x_vals, reps_list, align="center", color="r")
@@ -244,8 +249,8 @@ def format_plot_3(
         plt_3: Axes, x_vals: List[int],
         priority_list: List[float],
         state_names: List[str]) -> BarContainer:
-    """Add the x & y ticks, format those ticks, set the title,
-    and place the text on the plot for the priority num plot.
+    """Add the x & y ticks, format those ticks, set the title, and place the
+    text on the plot for the priority num plot.
 
     Parameters
     ----------
@@ -262,6 +267,7 @@ def format_plot_3(
     -------
     `BarContainer`
         The objects describing the plotted bars
+
     """
     plt_3_bars: BarContainer = plt_3.bar(x_vals, priority_list,
                                          align="center", color="g")
@@ -286,8 +292,8 @@ def format_plot_3(
 
 
 def format_plot_4(plt_4: Axes) -> NoReturn:
-    """Add the x & y ticks, format those ticks, set the title,
-    and place the text on the plot for the empty text plot.
+    """Add the x & y ticks, format those ticks, set the title, and place the
+    text on the plot for the empty text plot.
 
     Parameters
     ----------
@@ -314,8 +320,9 @@ def format_plt() -> NoReturn:
 
 def init_anim_factory(
         plt_bars_dict: PlotBarsDict, txt_dict: PlotTextDict, mean_line: Line2D) -> Callable:
-    """Create an init_anim function that returns the needed artists. init_anim() doesn't
-    allow for custom parameters to be passed. Therefore, we make them here
+    """Create an init_anim function that returns the needed artists. init_anim()
+    doesn't allow for custom parameters to be passed. Therefore, we make them
+    here.
 
     state_info_list : `List[StateInfo]`
         The parsed attributes about each of the states (pop_per_rep, priority values, etc.)
@@ -329,14 +336,18 @@ def init_anim_factory(
     Returns
     -------
     `Callable`
-        The init_anim function that returns the initial artists on the plot"""
+        The init_anim function that returns the initial artists on the plot
+
+    """
     def init_anim() -> List:
-        """Return the initial artists on the plot for the blitting algorithm to use
+        """Return the initial artists on the plot for the blitting algorithm to
+        use.
 
         Returns
         -------
         `List[Artist]`
             All of the bars, texts, and the mean line on the plot.
+
         """
         bars: List[Rectangle] = [artist
                                  for container in list(plt_bars_dict.values()) for artist in container]
@@ -349,11 +360,11 @@ def init_anim_factory(
 def animate(
         frame: int, state_info_list: List[StateInfo],
         plt_bars_dict: PlotBarsDict, txt_dict: PlotTextDict, mean_line: Line2D) -> List[Artist]:
-    """Called every frame of Matplotlib's `FuncAnimation`. Calculate the
-    new priority values and reps in each state. This is passed the
-    properties about each of the subplots that we need to update and
-    the previous frame's finished calculations. This makes calls to
-    other functions that update each individual plot.
+    """Called every frame of Matplotlib's `FuncAnimation`. Calculate the new
+    priority values and reps in each state. This is passed the properties about
+    each of the subplots that we need to update and the previous frame's
+    finished calculations. This makes calls to other functions that update each
+    individual plot.
 
     Parameters
     ----------
@@ -372,6 +383,7 @@ def animate(
     -------
     `List[Artist]`
         All of the artists that the blitting algorithm needs to update
+
     """
     for state_info in state_info_list:
         if state_info["max_pri"]:
@@ -403,8 +415,8 @@ def animate(
 def update_plt1(
         plt_1_bars: BarContainer, state_info_list: List[StateInfo],
         mean_line: Line2D, txt_dict: PlotTextDict, frame: int) -> NoReturn:
-    """Re-plot all of the bars, move the mean line, and set the text of everything on
-    plot 1 with newly calculated data.
+    """Re-plot all of the bars, move the mean line, and set the text of
+    everything on plot 1 with newly calculated data.
 
     Parameters
     ----------
@@ -418,6 +430,7 @@ def update_plt1(
         A dictionary that links the name of each text property to its `Text` object
     frame : `int`
         The current frame number
+
     """
     pop_per_rep_list = list(
         map(operator.itemgetter("pop_per_rep"), state_info_list))
@@ -459,6 +472,7 @@ def update_plt2(plt_2_bars: BarContainer, state_info_list: List[StateInfo]) -> N
         The objects describing the plotted bars
     state_info_list : `List[StateInfo]`
         The parsed attributes about each of the states (pop_per_rep, priority values, etc.)
+
     """
     for state, state_info in zip(plt_2_bars, state_info_list):
         state.set_height(state_info["reps"])
@@ -473,6 +487,7 @@ def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> N
         The objects describing the plotted bars
     state_info_list : `List[StateInfo]`
         The parsed attributes about each of the states (pop_per_rep, priority values, etc.)
+
     """
     for state, state_info in zip(plt_3_bars, state_info_list):
         state.set_color("g")
@@ -482,7 +497,7 @@ def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> N
 
 
 def main() -> NoReturn:
-    """Run all executable code"""
+    """Run all executable code."""
 
     parser: ArgumentParser = ArgumentParser(
         prog="python3 source/bar_chart.py",
