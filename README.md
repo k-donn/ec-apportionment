@@ -6,6 +6,19 @@ number calculations.
 
 See [Running](#running) for instructions on how to get started
 
+## Usage
+
+```
+usage: python3 source/bar_chart.py [-h] -f FILE [-d]
+
+Show an animation of the Huntington–Hill apportionment method
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -f FILE, --file FILE  Path to CSV state population data
+  -d, --debug           Show the plot instead of writing to file
+```
+
 ## Running
 
 -   Create conda env from requirements.txt (see [Install Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html))
