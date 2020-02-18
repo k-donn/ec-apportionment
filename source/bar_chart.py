@@ -1,6 +1,6 @@
 """
 usage:
-python3 source/bar_chart.py file
+python3.7 source/bar_chart.py file
 description:
 Show an animation of the Huntington–Hill apportionment method
 """
@@ -500,7 +500,7 @@ def main() -> NoReturn:
     """Run all executable code."""
 
     parser: ArgumentParser = ArgumentParser(
-        prog="python3 source/bar_chart.py",
+        prog="python3.7 source/bar_chart.py",
         description="Show an animation of the Huntington–Hill apportionment method")
     parser.add_argument("-f", "--file", required=True, help="Path to CSV state population data")
     parser.add_argument("-d", "--debug", action="store_true",
