@@ -1,5 +1,7 @@
-.vscode
 *.mp4
 *.old.py
 .DS_STORE
+
+.vscode/
 __pycache__/
+.mypy_cache/

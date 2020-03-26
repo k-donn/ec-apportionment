@@ -5,13 +5,17 @@ description:
 Show an animation of the Huntington–Hill apportionment method
 """
 # TODO
-# Refactor main() to have less local variables
+# Extract a method for getting all state names, pop_per_rep, etc
+# so there's less variables in main()
+# Refactor out magic number indices
+# Refactor type names
+# Add pictures preview in README
 
 import csv
 import math
 import operator
 from argparse import ArgumentParser
-from typing import Callable, Dict, List, NoReturn, Tuple, Union
+from typing import Callable, Dict, List, Tuple, TypedDict
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
@@ -27,8 +31,17 @@ from matplotlib.patches import Rectangle
 from matplotlib.text import Text
 from matplotlib.ticker import FuncFormatter, MultipleLocator
 
-# dict with name, pop, priority values, pop_per_rep, and is max pri
-StateInfo = Dict[str, Union[str, int, float, bool]]
+
+class StateInfo(TypedDict):
+    """dict with name, pop, reps, prio, pop_per_rep, and is max_pri"""
+    name: str
+    pop: int
+    reps: int
+    pop_per_rep: float
+    priority: float
+    max_pri: bool
+
+
 # list containing name and pop
 SimpleStateInfo = List[str]
 # dict with all the plot's text objects
@@ -75,23 +88,26 @@ def parse_states(raw_csv: List[SimpleStateInfo]) -> List[StateInfo]:
         A list of the parsed attributes
 
     """
-    max_priority = 0
-    state_info_list = []
+    max_priority: float = 0
+    state_info_list: List[StateInfo] = []
     for row in raw_csv:
-        state_info = {}
         is_max = False
-        state_info["name"] = row[0]
-        state_info["pop"] = int(row[1])
-        state_info["reps"] = 1
-        state_info["pop_per_rep"] = state_info["pop"] / \
-            state_info["reps"]
-        fut_reps = state_info["reps"] + 1
-        state_info["priority"] = state_info["pop"] * \
-            (1 / math.sqrt(fut_reps * (fut_reps - 1)))
-        if state_info["priority"] > max_priority:
-            max_priority = state_info["priority"]
+        name = row[0]
+        pop = int(row[1])
+        reps = 1
+        pop_per_rep = pop / reps
+        fut_reps = reps + 1
+        priority = pop * (1 / math.sqrt(fut_reps * (fut_reps - 1)))
+
+        if priority > max_priority:
+            max_priority = priority
             is_max = True
-        state_info["max_pri"] = is_max
+
+        max_pri = is_max
+
+        state_info: StateInfo = StateInfo(name=name, pop=pop, reps=reps,
+                                          pop_per_rep=pop_per_rep, priority=priority, max_pri=max_pri)
+
         state_info_list.append(state_info)
     return state_info_list
 
@@ -291,7 +307,7 @@ def format_plot_3(
     return plt_3_bars
 
 
-def format_plot_4(plt_4: Axes) -> NoReturn:
+def format_plot_4(plt_4: Axes) -> None:
     """Add the x & y ticks, format those ticks, set the title, and place the
     text on the plot for the empty text plot.
 
@@ -306,7 +322,7 @@ def format_plot_4(plt_4: Axes) -> NoReturn:
     plt_4.axis("off")
 
 
-def format_plt() -> NoReturn:
+def format_plt() -> None:
     """Adjust plot level properties (all subplots but not the entire window)"""
     plt.style.use("seaborn-dark")
 
@@ -414,7 +430,7 @@ def animate(
 
 def update_plt1(
         plt_1_bars: BarContainer, state_info_list: List[StateInfo],
-        mean_line: Line2D, txt_dict: PlotTextDict, frame: int) -> NoReturn:
+        mean_line: Line2D, txt_dict: PlotTextDict, frame: int) -> None:
     """Re-plot all of the bars, move the mean line, and set the text of
     everything on plot 1 with newly calculated data.
 
@@ -463,7 +479,7 @@ def update_plt1(
         state.set_height(state_info["pop_per_rep"])
 
 
-def update_plt2(plt_2_bars: BarContainer, state_info_list: List[StateInfo]) -> NoReturn:
+def update_plt2(plt_2_bars: BarContainer, state_info_list: List[StateInfo]) -> None:
     """Re-plot all of the bars on plot 2 with newly calculated data.
 
     Parameters
@@ -478,7 +494,7 @@ def update_plt2(plt_2_bars: BarContainer, state_info_list: List[StateInfo]) -> N
         state.set_height(state_info["reps"])
 
 
-def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> NoReturn:
+def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> None:
     """Re-plot all of the bars on plot 3 with newly calculated data.
 
     Parameters
@@ -496,7 +512,7 @@ def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> N
         state.set_height(state_info["priority"])
 
 
-def main() -> NoReturn:
+def main() -> None:
     """Run all executable code."""
 
     parser: ArgumentParser = ArgumentParser(
