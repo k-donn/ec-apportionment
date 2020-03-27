@@ -5,10 +5,8 @@ description:
 Show an animation of the Huntington–Hill apportionment method
 """
 # TODO
-# Extract a method for getting all state names, pop_per_rep, etc
-# so there's less variables in main()
+# Refactor out extract_x functions to curry function
 # Refactor out magic number indices
-# Refactor type names
 # Add pictures preview in README
 
 import csv
@@ -33,7 +31,7 @@ from matplotlib.ticker import FuncFormatter, MultipleLocator
 
 
 class StateInfo(TypedDict):
-    """dict with name, pop, reps, prio, pop_per_rep, and is max_pri"""
+    """Dict with name, pop, reps, prio, pop_per_rep, and is max_pri"""
     name: str
     pop: int
     reps: int
@@ -43,7 +41,7 @@ class StateInfo(TypedDict):
 
 
 # list containing name and pop
-SimpleStateInfo = List[str]
+CsvStateInfo = List[str]
 # dict with all the plot's text objects
 PlotTextDict = Dict[str, Text]
 # attribute objects related to plot graphics
@@ -52,7 +50,7 @@ PlotProps = Tuple[BarContainer, Line2D, PlotTextDict]
 PlotBarsDict = Dict[str, BarContainer]
 
 
-def extract_csv(fname: str) -> List[SimpleStateInfo]:
+def extract_csv(fname: str) -> List[CsvStateInfo]:
     """Turn the states in the csv file to a Python data structure.
 
     Parameters
@@ -66,14 +64,14 @@ def extract_csv(fname: str) -> List[SimpleStateInfo]:
         The name and population of each state in the file
 
     """
-    res: List[SimpleStateInfo]
+    res: List[CsvStateInfo]
     with open(fname) as inp:
         reader = csv.reader(inp)
         res = list(reader)
     return res
 
 
-def parse_states(raw_csv: List[SimpleStateInfo]) -> List[StateInfo]:
+def parse_states(raw_csv: List[CsvStateInfo]) -> List[StateInfo]:
     """Calculate the priority value, population per representative, and number
     of representatives for each state.
 
@@ -126,6 +124,82 @@ def comma_format_int() -> Callable:
     return lambda x, p: "{:,}".format(int(x))
 
 
+def extract_state_names(state_info_list: List[StateInfo]) -> List[str]:
+    """Extract the state_name propery from the list of state info.
+
+    Parameters
+    ----------
+    state_info_list : List[StateInfo]
+        Continually updated list of state calculation info
+
+    Returns
+    -------
+    List[str]
+        A list of all names
+    """
+    state_names: List[str] = list(
+        map(operator.itemgetter("name"), state_info_list))
+
+    return state_names
+
+
+def extract_pop_per_rep(state_info_list: List[StateInfo]) -> List[float]:
+    """Extract the pop_per_rep propery from the list of state info.
+
+    Parameters
+    ----------
+    state_info_list : List[StateInfo]
+        Continually updated list of state calculation info
+
+    Returns
+    -------
+    List[float]
+        A list of all ratios
+    """
+    pop_per_rep_list: List[float] = list(
+        map(operator.itemgetter("pop_per_rep"), state_info_list))
+
+    return pop_per_rep_list
+
+
+def extract_reps(state_info_list: List[StateInfo]) -> List[int]:
+    """Extract the priority propery from the list of state info.
+
+    Parameters
+    ----------
+    state_info_list : List[StateInfo]
+        Continually updated list of state calculation info
+
+    Returns
+    -------
+    List[int]
+        A list of all priority values
+    """
+    reps_list: List[int] = list(
+        map(operator.itemgetter("reps"), state_info_list))
+
+    return reps_list
+
+
+def extract_priority(state_info_list: List[StateInfo]) -> List[float]:
+    """Extract the priority propery from the list of state info.
+
+    Parameters
+    ----------
+    state_info_list : List[StateInfo]
+        Continually updated list of state calculation info
+
+    Returns
+    -------
+    List[float]
+        A list of all priority values
+    """
+    priority_list: List[float] = list(
+        map(operator.itemgetter("priority"), state_info_list))
+
+    return priority_list
+
+
 def calc_geo_mean(array: List[float]) -> float:
     """Calculate the geometric mean of an array of floats.
 
@@ -145,9 +219,7 @@ def calc_geo_mean(array: List[float]) -> float:
 
 
 def format_plot_1(
-        plt_1: Axes, x_vals: List[int],
-        pop_per_rep_list: List[float],
-        state_names: List[str]) -> PlotProps:
+        plt_1: Axes, x_vals: List[int], state_info_list: List[StateInfo]) -> PlotProps:
     """Add the x & y ticks, format those ticks, set the title, draw the mean
     line, and place the text on the plot for the pop_per_rep plot.
 
@@ -156,11 +228,9 @@ def format_plot_1(
     plt_1 : `Axes`
         The object that describes the graph
     x_vals : `List[int]`
-        The list of ints that shows the states' position's
-    pop_per_rep_list : `List[float]`
-        The list of population per representative values for all the states
-    state_names : `List[str]`
-        The list of state names
+        The list of ints that shows the states' positions
+    state_info_list : `List[StateInfo]`
+        Continually updated list of state calculation info
 
     Returns
     -------
@@ -168,6 +238,9 @@ def format_plot_1(
         A tuple of the plotted bars, text, and line objects
 
     """
+    state_names = extract_state_names(state_info_list)
+    pop_per_rep_list = extract_pop_per_rep(state_info_list)
+
     plt_1_bars: BarContainer = plt_1.bar(x_vals, pop_per_rep_list,
                                          align="center")
 
@@ -216,9 +289,7 @@ def format_plot_1(
 
 
 def format_plot_2(
-        plt_2: Axes, x_vals: List[int],
-        reps_list: List[int],
-        state_names: List[str]) -> BarContainer:
+        plt_2: Axes, x_vals: List[int], state_info_list: List[StateInfo]) -> BarContainer:
     """Add the x & y ticks, format those ticks, set the title, and place the
     text on the plot for the number of reps plot.
 
@@ -228,10 +299,8 @@ def format_plot_2(
         The object that describes the graph
     x_vals : `List[int]`
         The list of ints that shows the states' position's
-    reps_list : `List[int]`
-        The list of the count of each states' representatives
-    state_names : `List[str]`
-        The list of state names
+    state_info_list : `List[StateInfo]`
+        Continually updated list of state calculation info
 
     Returns
     -------
@@ -239,6 +308,9 @@ def format_plot_2(
         The objects describing the plotted bars
 
     """
+    state_names = extract_state_names(state_info_list)
+    reps_list = extract_reps(state_info_list)
+
     plt_2_bars: BarContainer = plt_2.bar(
         x_vals, reps_list, align="center", color="r")
     plt_2.set_xticks(x_vals)
@@ -262,9 +334,7 @@ def format_plot_2(
 
 
 def format_plot_3(
-        plt_3: Axes, x_vals: List[int],
-        priority_list: List[float],
-        state_names: List[str]) -> BarContainer:
+        plt_3: Axes, x_vals: List[int], state_info_list: List[StateInfo]) -> BarContainer:
     """Add the x & y ticks, format those ticks, set the title, and place the
     text on the plot for the priority num plot.
 
@@ -274,10 +344,8 @@ def format_plot_3(
         The object that describes the graph
     x_vals : `List[int]`
         The list of ints that shows the states' position's
-    priority_list : `List[float]`
-        The list of each states' priority values
-    state_names : `List[str]`
-        The list of state names
+    state_info_list : `List[StateInfo]`
+        Continually updated list of state calculation info
 
     Returns
     -------
@@ -285,6 +353,9 @@ def format_plot_3(
         The objects describing the plotted bars
 
     """
+    state_names = extract_state_names(state_info_list)
+    priority_list = extract_priority(state_info_list)
+
     plt_3_bars: BarContainer = plt_3.bar(x_vals, priority_list,
                                          align="center", color="g")
     plt_3.set_xticks(x_vals)
@@ -341,7 +412,7 @@ def init_anim_factory(
     here.
 
     state_info_list : `List[StateInfo]`
-        The parsed attributes about each of the states (pop_per_rep, priority values, etc.)
+        Continually updated list of state calculation info
     plt_bars_dict : `PlotBarsDict`
         A dictionary that links the name of each plot to its respective `BarContainer` instance
     txt_dict : `PlotTextDict`
@@ -387,7 +458,7 @@ def animate(
     frame : `int`
         The current frame number
     state_info_list : `List[StateInfo]`
-        The parsed attributes about each of the states (pop_per_rep, priority values, etc.)
+        Continually updated list of state calculation info
     plt_bars_dict : `PlotBarsDict`
         A dictionary that links the name of each plot to its respective `BarContainer` instance
     txt_dict : `PlotTextDict`
@@ -439,7 +510,7 @@ def update_plt1(
     plt_1_bars : `BarContainer`
         The objects describing the plotted bars
     state_info_list : `List[StateInfo]`
-        The parsed attributes about each of the states (pop_per_rep, priority values, etc.)
+        Continually updated list of state calculation info
     mean_line : `Line2D`
         The object describing the mean-line in the first plot
     txt_dict : `PlotTextDict`
@@ -487,7 +558,7 @@ def update_plt2(plt_2_bars: BarContainer, state_info_list: List[StateInfo]) -> N
     plt_2_bars : `BarContainer`
         The objects describing the plotted bars
     state_info_list : `List[StateInfo]`
-        The parsed attributes about each of the states (pop_per_rep, priority values, etc.)
+        Continually updated list of state calculation info
 
     """
     for state, state_info in zip(plt_2_bars, state_info_list):
@@ -502,7 +573,7 @@ def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> N
     plt_3_bars : `BarContainer`
         The objects describing the plotted bars
     state_info_list : `List[StateInfo]`
-        The parsed attributes about each of the states (pop_per_rep, priority values, etc.)
+        Continually updated list of state calculation info
 
     """
     for state, state_info in zip(plt_3_bars, state_info_list):
@@ -524,17 +595,8 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    rows: List[SimpleStateInfo] = extract_csv(args.file)
+    rows: List[CsvStateInfo] = extract_csv(args.file)
     state_info_list: List[StateInfo] = parse_states(rows)
-
-    state_names: List[str] = list(
-        map(operator.itemgetter("name"), state_info_list))
-    pop_per_rep_list: List[float] = list(
-        map(operator.itemgetter("pop_per_rep"), state_info_list))
-    reps_list: List[int] = list(
-        map(operator.itemgetter("reps"), state_info_list))
-    priority_list: List[float] = list(
-        map(operator.itemgetter("priority"), state_info_list))
 
     fig: Figure = plt.figure(figsize=(16, 9), dpi=120)
 
@@ -547,12 +609,9 @@ def main() -> None:
 
     x_pos: np.ndarray = np.arange(len(state_info_list))
 
-    (plt_1_bars, mean_line, txt_dict) = format_plot_1(
-        plt_1, x_pos, pop_per_rep_list, state_names)
-    plt_2_bars: BarContainer = format_plot_2(
-        plt_2, x_pos, reps_list, state_names)
-    plt_3_bars: BarContainer = format_plot_3(
-        plt_3, x_pos, priority_list, state_names)
+    (plt_1_bars, mean_line, txt_dict) = format_plot_1(plt_1, x_pos, state_info_list)
+    plt_2_bars: BarContainer = format_plot_2(plt_2, x_pos, state_info_list)
+    plt_3_bars: BarContainer = format_plot_3(plt_3, x_pos, state_info_list)
     format_plot_4(plt_4)
 
     plt_bars_dict: PlotBarsDict = {"plt_1_bars": plt_1_bars,
