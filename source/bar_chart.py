@@ -282,9 +282,6 @@ def format_plot_1(
     mean_line: Line2D = plt_1.axhline(y=mean_pop_per_seat,
                                       xmin=0.0, xmax=1.0, color="r")
 
-    plt_1.text(1.0, 1.0, "/u/ilikeplanes86", transform=plt_1.transAxes,
-               ha="right", va="top")
-
     return (plt_1_bars, mean_line, res_dict)
 
 

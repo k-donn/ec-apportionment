@@ -19,9 +19,14 @@ optional arguments:
   -d, --debug           Show the plot instead of writing to file
 ```
 
+## Example
+
+![Example GIF](somewhere)
+
 ## Running
 
--   Create conda env from requirements.txt (see [Install Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html))
+-   Create `conda` env from spec-file.txt (see [Install Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html))
+-   `pip` can also be configured with requirements.txt 
 -   From the root of the folder,
 
 ```
