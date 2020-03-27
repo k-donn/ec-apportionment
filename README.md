@@ -21,7 +21,7 @@ optional arguments:
 
 ## Example
 
-![Example GIF](somewhere)
+![Example GIF](https://raw.githubusercontent.com/k-donn/ec-apportionment/master/recordings/preview.gif)
 
 ## Running
 
