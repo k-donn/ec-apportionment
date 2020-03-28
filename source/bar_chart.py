@@ -1,8 +1,8 @@
 """
+Show an animation of the Huntington–Hill apportionment method.
+
 usage:
 python3.7 source/bar_chart.py file
-description:
-Show an animation of the Huntington–Hill apportionment method
 """
 # TODO
 # Refactor out extract_x functions to curry function
@@ -104,7 +104,8 @@ def parse_states(raw_csv: List[CsvStateInfo]) -> List[StateInfo]:
         max_pri = is_max
 
         state_info: StateInfo = StateInfo(name=name, pop=pop, reps=reps,
-                                          pop_per_rep=pop_per_rep, priority=priority, max_pri=max_pri)
+                                          pop_per_rep=pop_per_rep,
+                                          priority=priority, max_pri=max_pri)
 
         state_info_list.append(state_info)
     return state_info_list
@@ -433,8 +434,11 @@ def init_anim_factory(
             All of the bars, texts, and the mean line on the plot.
 
         """
+
+        # All the containers for each of the states in each plot
+        plot_containers: List[BarContainer] = list(plt_bars_dict.values())
         bars: List[Rectangle] = [artist
-                                 for container in list(plt_bars_dict.values()) for artist in container]
+                                 for container in plot_containers for artist in container]
         txts: List[Text] = list(txt_dict.values())
 
         return bars + txts + [mean_line]
@@ -525,7 +529,8 @@ def update_plt1(
         pop_per_rep_list) - min(pop_per_rep_list)
     geo_mean_pop_per_seat: float = calc_geo_mean(pop_per_rep_list)
 
-    max_state: str = max(state_info_list, key=operator.itemgetter("priority"))["name"]
+    max_state: str = max(
+        state_info_list, key=operator.itemgetter("priority"))["name"]
 
     txt_dict["seat_txt"].set_text(
         f"Seat# {frame + 1}")
@@ -586,7 +591,8 @@ def main() -> None:
     parser: ArgumentParser = ArgumentParser(
         prog="python3.7 source/bar_chart.py",
         description="Show an animation of the Huntington–Hill apportionment method")
-    parser.add_argument("-f", "--file", required=True, help="Path to CSV state population data")
+    parser.add_argument("-f", "--file", required=True,
+                        help="Path to CSV state population data")
     parser.add_argument("-d", "--debug", action="store_true",
                         help="Show the plot instead of writing to file")
 
@@ -606,7 +612,8 @@ def main() -> None:
 
     x_pos: np.ndarray = np.arange(len(state_info_list))
 
-    (plt_1_bars, mean_line, txt_dict) = format_plot_1(plt_1, x_pos, state_info_list)
+    (plt_1_bars, mean_line, txt_dict) = format_plot_1(
+        plt_1, x_pos, state_info_list)
     plt_2_bars: BarContainer = format_plot_2(plt_2, x_pos, state_info_list)
     plt_3_bars: BarContainer = format_plot_3(plt_3, x_pos, state_info_list)
     format_plot_4(plt_4)
@@ -622,7 +629,8 @@ def main() -> None:
     # This doesn't work if FuncAnimation isn't assigned to a value,
     #  therefore, add disable-unused for `anim`
     anim: Animation = animation.FuncAnimation(  # pylint: disable=unused-variable
-        fig, animate, fargs=(state_info_list, plt_bars_dict, txt_dict, mean_line),
+        fig, animate, fargs=(
+            state_info_list, plt_bars_dict, txt_dict, mean_line),
         init_func=init_anim_factory(plt_bars_dict, txt_dict, mean_line),
         frames=frames, repeat=False, blit=True)
 
