@@ -5,9 +5,8 @@ usage:
 python3.7 source/bar_chart.py file
 """
 # TODO
-# Refactor out extract_x functions to curry function
-# Refactor out magic number indices
-# Add pictures preview in README
+# Refactor out extract_x functions to curry a function
+# Optimize max functions
 
 import csv
 import math
@@ -31,7 +30,8 @@ from matplotlib.ticker import FuncFormatter, MultipleLocator
 
 
 class StateInfo(TypedDict):
-    """Dict with name, pop, reps, prio, pop_per_rep, and is max_pri"""
+    """Dict with name, pop, reps, prio, pop_per_rep, and is max_pri."""
+
     name: str
     pop: int
     reps: int
@@ -72,8 +72,7 @@ def extract_csv(fname: str) -> List[CsvStateInfo]:
 
 
 def parse_states(raw_csv: List[CsvStateInfo]) -> List[StateInfo]:
-    """Calculate the priority value, population per representative, and number
-    of representatives for each state.
+    """Construct the dict object for each state.
 
     Parameters
     ----------
@@ -112,7 +111,9 @@ def parse_states(raw_csv: List[CsvStateInfo]) -> List[StateInfo]:
 
 
 def comma_format_int() -> Callable:
-    """Return a function that formats a number with a maginute comma. Future Me,
+    """Return a function that inserts digits group seperators in a number.
+
+    Future Me,
     I refactored this to a function because it has multiple references. Don't
     delete this.
 
@@ -221,7 +222,9 @@ def calc_geo_mean(array: List[float]) -> float:
 
 def format_plot_1(
         plt_1: Axes, x_vals: List[int], state_info_list: List[StateInfo]) -> PlotProps:
-    """Add the x & y ticks, format those ticks, set the title, draw the mean
+    """Adjust all properties of plot 1 to make it look nice.
+
+    Add the x & y ticks, format those ticks, set the title, draw the mean
     line, and place the text on the plot for the pop_per_rep plot.
 
     Parameters
@@ -288,7 +291,9 @@ def format_plot_1(
 
 def format_plot_2(
         plt_2: Axes, x_vals: List[int], state_info_list: List[StateInfo]) -> BarContainer:
-    """Add the x & y ticks, format those ticks, set the title, and place the
+    """Adjust all properties of plot 2 to make it look nice.
+
+    Add the x & y ticks, format those ticks, set the title, and place the
     text on the plot for the number of reps plot.
 
     Parameters
@@ -333,7 +338,9 @@ def format_plot_2(
 
 def format_plot_3(
         plt_3: Axes, x_vals: List[int], state_info_list: List[StateInfo]) -> BarContainer:
-    """Add the x & y ticks, format those ticks, set the title, and place the
+    """Adjust all properties of plot 3 to make it look nice.
+
+    Add the x & y ticks, format those ticks, set the title, and place the
     text on the plot for the priority num plot.
 
     Parameters
@@ -377,7 +384,9 @@ def format_plot_3(
 
 
 def format_plot_4(plt_4: Axes) -> None:
-    """Add the x & y ticks, format those ticks, set the title, and place the
+    """Adjust all properties of plot 4 to make it look nice.
+
+    Add the x & y ticks, format those ticks, set the title, and place the
     text on the plot for the empty text plot.
 
     Parameters
@@ -392,7 +401,7 @@ def format_plot_4(plt_4: Axes) -> None:
 
 
 def format_plt() -> None:
-    """Adjust plot level properties (all subplots but not the entire window)"""
+    """Adjust plot level properties (all subplots but not the entire window)."""
     plt.style.use("seaborn-dark")
 
     plt.subplots_adjust(top=0.955,
@@ -405,8 +414,9 @@ def format_plt() -> None:
 
 def init_anim_factory(
         plt_bars_dict: PlotBarsDict, txt_dict: PlotTextDict, mean_line: Line2D) -> Callable:
-    """Create an init_anim function that returns the needed artists. init_anim()
-    doesn't allow for custom parameters to be passed. Therefore, we make them
+    """Create an init_anim function that returns the needed artists.
+
+    init_anim() doesn't allow for custom parameters to be passed. Therefore, we make them
     here.
 
     state_info_list : `List[StateInfo]`
@@ -425,7 +435,9 @@ def init_anim_factory(
 
     """
     def init_anim() -> List:
-        """Return the initial artists on the plot for the blitting algorithm to
+        """Return the initial artists on the plot.
+
+        This is needed for the blitting algorithm to
         use.
 
         Returns
@@ -434,7 +446,6 @@ def init_anim_factory(
             All of the bars, texts, and the mean line on the plot.
 
         """
-
         # All the containers for each of the states in each plot
         plot_containers: List[BarContainer] = list(plt_bars_dict.values())
         bars: List[Rectangle] = [artist
@@ -448,8 +459,9 @@ def init_anim_factory(
 def animate(
         frame: int, state_info_list: List[StateInfo],
         plt_bars_dict: PlotBarsDict, txt_dict: PlotTextDict, mean_line: Line2D) -> List[Artist]:
-    """Called every frame of Matplotlib's `FuncAnimation`. Calculate the new
-    priority values and reps in each state. This is passed the properties about
+    """Calculate the new priority values and reps in each state.
+
+    Called every frame of Matplotlib's `FuncAnimation`.This is passed the properties about
     each of the subplots that we need to update and the previous frame's
     finished calculations. This makes calls to other functions that update each
     individual plot.
@@ -503,7 +515,9 @@ def animate(
 def update_plt1(
         plt_1_bars: BarContainer, state_info_list: List[StateInfo],
         mean_line: Line2D, txt_dict: PlotTextDict, frame: int) -> None:
-    """Re-plot all of the bars, move the mean line, and set the text of
+    """Insert the new data on the plot.
+
+    Re-plot all of the bars, move the mean line, and set the text of
     everything on plot 1 with newly calculated data.
 
     Parameters
@@ -553,7 +567,7 @@ def update_plt1(
 
 
 def update_plt2(plt_2_bars: BarContainer, state_info_list: List[StateInfo]) -> None:
-    """Re-plot all of the bars on plot 2 with newly calculated data.
+    """Insert the new data on the plot.
 
     Parameters
     ----------
@@ -568,7 +582,7 @@ def update_plt2(plt_2_bars: BarContainer, state_info_list: List[StateInfo]) -> N
 
 
 def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> None:
-    """Re-plot all of the bars on plot 3 with newly calculated data.
+    """Insert the new data on the plot.
 
     Parameters
     ----------
@@ -587,7 +601,6 @@ def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> N
 
 def main() -> None:
     """Run all executable code."""
-
     parser: ArgumentParser = ArgumentParser(
         prog="python3.7 source/bar_chart.py",
         description="Show an animation of the Huntington–Hill apportionment method")

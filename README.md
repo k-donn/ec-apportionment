@@ -32,7 +32,7 @@ optional arguments:
 ```
 python3.8 ./source/bar_chart.py ./data/state-populations.csv
 ```
-
+-   The resulting video is put into ./recordings
 -   If there are any errors, they are most likely backend related.
 
 ## Meta
