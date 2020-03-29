@@ -1,12 +1,18 @@
 """
 Show an animation of the Huntington–Hill apportionment method.
 
-usage:
-python3.7 source/bar_chart.py file
+usage: python3.8 source/bar_chart.py [-h] -f FILE [-d]
+
+required arguments:
+  -f FILE, --file FILE  Path to CSV state population data
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d, --debug           Show the plot instead of writing to file
+
 """
 # TODO
-# Refactor out extract_x functions to curry a function
-# Optimize max functions
+# Refactor out extract_x functions
 
 import csv
 import math
@@ -66,8 +72,8 @@ def extract_csv(fname: str) -> List[CsvStateInfo]:
     """
     res: List[CsvStateInfo]
     with open(fname) as inp:
-        reader = csv.reader(inp)
-        res = list(reader)
+        parser = csv.reader(inp)
+        res = list(parser)
     return res
 
 
@@ -124,6 +130,25 @@ def comma_format_int() -> Callable:
 
     """
     return lambda x, p: "{:,}".format(int(x))
+
+
+def get_max_pri_tuple(state_info_tuple: Tuple[int, StateInfo]) -> float:
+    """Extract property to sort an enumerated list of StateInfo.
+
+    Used to sort a List[StateInfo] by the priority prop of each
+    of the `StateInfo`s.
+
+    Parameters
+    ----------
+    state_info_tuple : Tuple[int, StateInfo]
+        The generated Tuple of StateInfo
+
+    Returns
+    -------
+    float
+        The priority value of passed Tuple
+    """
+    return state_info_tuple[1]["priority"]
 
 
 def extract_state_names(state_info_list: List[StateInfo]) -> List[str]:
@@ -485,11 +510,14 @@ def animate(
         All of the artists that the blitting algorithm needs to update
 
     """
+    # This adds the representative from the last frame's calculated max_pri
     for state_info in state_info_list:
         if state_info["max_pri"]:
+            # print(f"{frame=} {state_info['name']=}")
             state_info["reps"] = state_info["reps"] + 1
             state_info["max_pri"] = False
 
+    # This calculates the next state to give a rep in the next frame
     for state_info in state_info_list:
         state_info["priority"] = (
             state_info["pop"] *
@@ -497,8 +525,12 @@ def animate(
         state_info["pop_per_rep"] = state_info["pop"] / \
             state_info["reps"]
 
-    state_info_list[state_info_list.index(
-        max(state_info_list, key=operator.itemgetter("priority")))]["max_pri"] = True
+    max_index, _ = max(
+        enumerate(state_info_list), key=get_max_pri_tuple)
+
+    # print(f"{frame=} {max_index=} {max_value=}")
+
+    state_info_list[max_index]["max_pri"] = True
 
     update_plt1(plt_bars_dict["plt_1_bars"], state_info_list, mean_line,
                 txt_dict, frame)
@@ -534,8 +566,7 @@ def update_plt1(
         The current frame number
 
     """
-    pop_per_rep_list = list(
-        map(operator.itemgetter("pop_per_rep"), state_info_list))
+    pop_per_rep_list = extract_pop_per_rep(state_info_list)
 
     mean_pop_per_seat: float = np.mean(pop_per_rep_list)
     std_dev_pop_per_seat: float = np.std(pop_per_rep_list)
@@ -602,7 +633,7 @@ def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> N
 def main() -> None:
     """Run all executable code."""
     parser: ArgumentParser = ArgumentParser(
-        prog="python3.7 source/bar_chart.py",
+        prog="python3.8 source/bar_chart.py",
         description="Show an animation of the Huntington–Hill apportionment method")
     parser.add_argument("-f", "--file", required=True,
                         help="Path to CSV state population data")
