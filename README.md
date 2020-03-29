@@ -21,7 +21,7 @@ optional arguments:
 
 ## Example
 
-![Example GIF](https://raw.githubusercontent.com/k-donn/ec-apportionment/master/recordings/preview.gif)
+![Example GIF](./recordings/preview.gif)
 
 ## Running
 
@@ -30,7 +30,7 @@ optional arguments:
 -   From the root of the folder,
 
 ```
-python3.8 ./source/bar_chart.py ./data/state-populations.csv
+python3.8 ./source/bar_chart.py -f ./data/state-populations.csv
 ```
 -   The resulting video is put into ./recordings
 -   If there are any errors, they are most likely backend related.
