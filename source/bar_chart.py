@@ -17,8 +17,9 @@ optional arguments:
 import csv
 import math
 import operator
+from statistics import geometric_mean
 from argparse import ArgumentParser
-from typing import Callable, Dict, List, Tuple, TypedDict
+from typing import Callable, Dict, List, Optional, Tuple, TypedDict
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
@@ -227,24 +228,6 @@ def extract_priority(state_info_list: List[StateInfo]) -> List[float]:
     return priority_list
 
 
-def calc_geo_mean(array: List[float]) -> float:
-    """Calculate the geometric mean of an array of floats.
-
-    Parameters
-    ----------
-    array : `List[float]`
-        An array of float values
-
-    Returns
-    -------
-    `float`
-        The average of the products of the values
-
-    """
-    arr: np.ndarray = np.log(array)
-    return np.exp(arr.sum()/len(arr))
-
-
 def format_plot_1(
         plt_1: Axes, x_vals: List[int], state_info_list: List[StateInfo]) -> PlotProps:
     """Adjust all properties of plot 1 to make it look nice.
@@ -292,7 +275,7 @@ def format_plot_1(
     std_dev_pop_per_seat: float = np.std(pop_per_rep_list)
     range_pop_per_seat: float = max(
         pop_per_rep_list) - min(pop_per_rep_list)
-    geo_mean_pop_per_seat: float = calc_geo_mean(pop_per_rep_list)
+    geo_mean_pop_per_seat: float = geometric_mean(pop_per_rep_list)
 
     res_dict: PlotTextDict = {}
 
@@ -459,7 +442,7 @@ def init_anim_factory(
         The init_anim function that returns the initial artists on the plot
 
     """
-    def init_anim() -> List:
+    def init_anim() -> List[Artist]:
         """Return the initial artists on the plot.
 
         This is needed for the blitting algorithm to
@@ -477,7 +460,7 @@ def init_anim_factory(
                                  for container in plot_containers for artist in container]
         txts: List[Text] = list(txt_dict.values())
 
-        return bars + txts + [mean_line]
+        return [*bars, *txts, mean_line]
     return init_anim
 
 
@@ -541,7 +524,7 @@ def animate(
         plt_bars_dict.values()) for artist in container]
     txts: List[Text] = list(txt_dict.values())
 
-    return bars + txts + [mean_line]
+    return [*bars, *txts, mean_line]
 
 
 def update_plt1(
@@ -572,7 +555,7 @@ def update_plt1(
     std_dev_pop_per_seat: float = np.std(pop_per_rep_list)
     range_pop_per_seat: float = max(
         pop_per_rep_list) - min(pop_per_rep_list)
-    geo_mean_pop_per_seat: float = calc_geo_mean(pop_per_rep_list)
+    geo_mean_pop_per_seat: float = geometric_mean(pop_per_rep_list)
 
     max_state: str = max(
         state_info_list, key=operator.itemgetter("priority"))["name"]
@@ -597,7 +580,8 @@ def update_plt1(
         state.set_height(state_info["pop_per_rep"])
 
 
-def update_plt2(plt_2_bars: BarContainer, state_info_list: List[StateInfo]) -> None:
+def update_plt2(plt_2_bars: BarContainer,
+                state_info_list: List[StateInfo]) -> None:
     """Insert the new data on the plot.
 
     Parameters
@@ -612,7 +596,8 @@ def update_plt2(plt_2_bars: BarContainer, state_info_list: List[StateInfo]) -> N
         state.set_height(state_info["reps"])
 
 
-def update_plt3(plt_3_bars: BarContainer, state_info_list: List[StateInfo]) -> None:
+def update_plt3(plt_3_bars: BarContainer,
+                state_info_list: List[StateInfo]) -> None:
     """Insert the new data on the plot.
 
     Parameters
@@ -666,8 +651,7 @@ def main() -> None:
                                    "plt_2_bars": plt_2_bars,
                                    "plt_3_bars": plt_3_bars}
 
-    writer = FFMpegWriter(fps=5, bitrate=250000, extra_args=["-minrate", "650k", "-maxrate", "1M"],
-                          metadata=dict(title="/u/ilikeplanes86"))
+    writer = FFMpegWriter(fps=5, metadata=dict(title="ec-apportionment"))
 
     frames: int = 385
     # This doesn't work if FuncAnimation isn't assigned to a value,
@@ -678,9 +662,10 @@ def main() -> None:
         init_func=init_anim_factory(plt_bars_dict, txt_dict, mean_line),
         frames=frames, repeat=False, blit=True)
 
-    fig_manager: FigureManagerQT = plt.get_current_fig_manager()
-    fig_manager.set_window_title(
-        "CGP Grey Electoral College speadsheet animated")
+    fig_manager: Optional[FigureManagerQT] = plt.get_current_fig_manager()
+    if fig_manager is not None:
+        fig_manager.set_window_title(
+            "CGP Grey Electoral College speadsheet animated")
 
     if args.debug:
         plt.show()
