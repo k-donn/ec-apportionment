@@ -13,12 +13,15 @@ optional arguments:
 """
 # TODO
 # Refactor out extract_x functions
+# Move main() initialization to init_anim()
+# Fix newline docstring formatting issue
+
 
 import csv
 import math
 import operator
-from statistics import geometric_mean
 from argparse import ArgumentParser
+from statistics import geometric_mean
 from typing import Callable, Dict, List, Optional, Tuple, TypedDict
 
 import matplotlib.animation as animation
@@ -651,7 +654,7 @@ def main() -> None:
                                    "plt_2_bars": plt_2_bars,
                                    "plt_3_bars": plt_3_bars}
 
-    writer = FFMpegWriter(fps=5, metadata=dict(title="ec-apportionment"))
+    writer = FFMpegWriter(metadata=dict(title="ec-apportionment"))
 
     frames: int = 385
     # This doesn't work if FuncAnimation isn't assigned to a value,
