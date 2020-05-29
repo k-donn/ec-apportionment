@@ -6,7 +6,7 @@ dependencies:
   - astroid=2.3.3=py38_0
   - blas=1.0=mkl
   - ca-certificates=2020.1.1=0
-  - certifi=2019.11.28=py38_1
+  - certifi=2020.4.5.1=py38_0
   - cycler=0.10.0=py38_0
   - dbus=1.13.12=h746ee38_0
   - expat=2.2.6=he6710b0_0
@@ -41,7 +41,7 @@ dependencies:
   - ncurses=6.2=he6710b0_0
   - numpy=1.18.1=py38h4f9e942_0
   - numpy-base=1.18.1=py38hde5b4d6_1
-  - openssl=1.1.1e=h7b6447c_0
+  - openssl=1.1.1g=h7b6447c_0
   - pcre=8.43=he6710b0_0
   - pip=20.0.2=py38_1
   - pydocstyle=4.0.1=py_0
@@ -50,6 +50,7 @@ dependencies:
   - pyqt=5.9.2=py38h05f1152_4
   - python=3.8.2=hcf32534_0
   - python-dateutil=2.8.1=py_0
+  - pytz=2020.1=py_0
   - qt=5.9.7=h5867ecd_1
   - readline=8.0=h7b6447c_0
   - rope=0.16.0=py_0
