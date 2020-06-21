@@ -1,28 +1,12 @@
-"""
-Show an animation of the Huntington–Hill apportionment method.
-
-usage: python3.8 source/bar_chart.py [-h] -f FILE [-d]
-
-required arguments:
-  -f FILE, --file FILE  Path to CSV state population data
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -d, --debug           Show the plot instead of writing to file
-
-"""
+"""Module for creating bar_chart animation."""
 # TODO
-# Refactor out extract_x functions
 # Move main() initialization to init_anim()
-# Fix newline docstring formatting issue
 
 
-import csv
 import math
 import operator
-from argparse import ArgumentParser
 from statistics import geometric_mean
-from typing import Callable, Dict, List, Optional, Tuple, TypedDict
+from typing import Callable, List, Optional
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
@@ -30,7 +14,7 @@ import numpy as np
 from matplotlib.animation import Animation, FFMpegWriter
 from matplotlib.artist import Artist
 from matplotlib.axes._subplots import Axes
-from matplotlib.backends.backend_qt5 import FigureManagerQT
+from matplotlib.backends.backend_qt5 import FigureManagerQT as FigureManager
 from matplotlib.container import BarContainer
 from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
@@ -38,47 +22,11 @@ from matplotlib.patches import Rectangle
 from matplotlib.text import Text
 from matplotlib.ticker import FuncFormatter, MultipleLocator
 
-
-class StateInfo(TypedDict):
-    """Dict with name, pop, reps, prio, pop_per_rep, and is max_pri."""
-
-    name: str
-    pop: int
-    reps: int
-    pop_per_rep: float
-    priority: float
-    max_pri: bool
-
-
-# list containing name and pop
-CsvStateInfo = List[str]
-# dict with all the plot's text objects
-PlotTextDict = Dict[str, Text]
-# attribute objects related to plot graphics
-PlotProps = Tuple[BarContainer, Line2D, PlotTextDict]
-# relates state names to respective bar objects
-PlotBarsDict = Dict[str, BarContainer]
-
-
-def extract_csv(fname: str) -> List[CsvStateInfo]:
-    """Turn the states in the csv file to a Python data structure.
-
-    Parameters
-    ----------
-    fname: `str`
-        Path to CSV state population data
-
-    Returns
-    -------
-    `List[SimpleStateInfo]`
-        The name and population of each state in the file
-
-    """
-    res: List[CsvStateInfo]
-    with open(fname) as inp:
-        parser = csv.reader(inp)
-        res = list(parser)
-    return res
+from .tools import (comma_format_int, extract_csv, extract_pop_per_rep,
+                    extract_priority, extract_priority_tuple, extract_reps,
+                    extract_state_names)
+from .types import (BarContainer, CsvStateInfo, PlotBarsDict, PlotProps,
+                    PlotTextDict, StateInfo, Text)
 
 
 def parse_states(raw_csv: List[CsvStateInfo]) -> List[StateInfo]:
@@ -120,117 +68,6 @@ def parse_states(raw_csv: List[CsvStateInfo]) -> List[StateInfo]:
     return state_info_list
 
 
-def comma_format_int() -> Callable:
-    """Return a function that inserts digits group seperators in a number.
-
-    Future Me,
-    I refactored this to a function because it has multiple references. Don't
-    delete this.
-
-    Returns
-    -------
-    `Callable`
-        The formatting function
-
-    """
-    return lambda x, p: "{:,}".format(int(x))
-
-
-def get_max_pri_tuple(state_info_tuple: Tuple[int, StateInfo]) -> float:
-    """Extract property to sort an enumerated list of StateInfo.
-
-    Used to sort a List[StateInfo] by the priority prop of each
-    of the `StateInfo`s.
-
-    Parameters
-    ----------
-    state_info_tuple : Tuple[int, StateInfo]
-        The generated Tuple of StateInfo
-
-    Returns
-    -------
-    float
-        The priority value of passed Tuple
-    """
-    return state_info_tuple[1]["priority"]
-
-
-def extract_state_names(state_info_list: List[StateInfo]) -> List[str]:
-    """Extract the state_name propery from the list of state info.
-
-    Parameters
-    ----------
-    state_info_list : List[StateInfo]
-        Continually updated list of state calculation info
-
-    Returns
-    -------
-    List[str]
-        A list of all names
-    """
-    state_names: List[str] = list(
-        map(operator.itemgetter("name"), state_info_list))
-
-    return state_names
-
-
-def extract_pop_per_rep(state_info_list: List[StateInfo]) -> List[float]:
-    """Extract the pop_per_rep propery from the list of state info.
-
-    Parameters
-    ----------
-    state_info_list : List[StateInfo]
-        Continually updated list of state calculation info
-
-    Returns
-    -------
-    List[float]
-        A list of all ratios
-    """
-    pop_per_rep_list: List[float] = list(
-        map(operator.itemgetter("pop_per_rep"), state_info_list))
-
-    return pop_per_rep_list
-
-
-def extract_reps(state_info_list: List[StateInfo]) -> List[int]:
-    """Extract the priority propery from the list of state info.
-
-    Parameters
-    ----------
-    state_info_list : List[StateInfo]
-        Continually updated list of state calculation info
-
-    Returns
-    -------
-    List[int]
-        A list of all priority values
-    """
-    reps_list: List[int] = list(
-        map(operator.itemgetter("reps"), state_info_list))
-
-    return reps_list
-
-
-def extract_priority(state_info_list: List[StateInfo]) -> List[float]:
-    """Extract the priority propery from the list of state info.
-
-    Parameters
-    ----------
-    state_info_list : List[StateInfo]
-        Continually updated list of state calculation info
-
-    Returns
-    -------
-    List[float]
-        A list of all priority values
-    """
-    priority_list: List[float] = list(
-        map(operator.itemgetter("priority"), state_info_list))
-
-    return priority_list
-
-
 def format_plot_1(
         plt_1: Axes, x_vals: List[int], state_info_list: List[StateInfo]) -> PlotProps:
     """Adjust all properties of plot 1 to make it look nice.
@@ -262,7 +99,7 @@ def format_plot_1(
     plt_1.set_xticks(x_vals)
     plt_1.set_xticklabels(state_names, rotation="vertical")
 
-    y_formatter: FuncFormatter = FuncFormatter(comma_format_int())
+    y_formatter = FuncFormatter(comma_format_int())
 
     plt_1.set_ylabel("People/Representative")
     plt_1.set_yscale("log")
@@ -512,7 +349,7 @@ def animate(
             state_info["reps"]
 
     max_index, _ = max(
-        enumerate(state_info_list), key=get_max_pri_tuple)
+        enumerate(state_info_list), key=extract_priority_tuple)
 
     # print(f"{frame=} {max_index=} {max_value=}")
 
@@ -618,19 +455,9 @@ def update_plt3(plt_3_bars: BarContainer,
         state.set_height(state_info["priority"])
 
 
-def main() -> None:
+def main(file: str, debug: bool) -> None:
     """Run all executable code."""
-    parser: ArgumentParser = ArgumentParser(
-        prog="python3.8 source/bar_chart.py",
-        description="Show an animation of the Huntington–Hill apportionment method")
-    parser.add_argument("-f", "--file", required=True,
-                        help="Path to CSV state population data")
-    parser.add_argument("-d", "--debug", action="store_true",
-                        help="Show the plot instead of writing to file")
-
-    args = parser.parse_args()
-
-    rows: List[CsvStateInfo] = extract_csv(args.file)
+    rows: List[CsvStateInfo] = extract_csv(file)
     state_info_list: List[StateInfo] = parse_states(rows)
 
     fig: Figure = plt.figure(figsize=(16, 9), dpi=120)
@@ -665,16 +492,12 @@ def main() -> None:
         init_func=init_anim_factory(plt_bars_dict, txt_dict, mean_line),
         frames=frames, repeat=False, blit=True)
 
-    fig_manager: Optional[FigureManagerQT] = plt.get_current_fig_manager()
+    fig_manager: Optional[FigureManager] = plt.get_current_fig_manager()
     if fig_manager is not None:
         fig_manager.set_window_title(
             "CGP Grey Electoral College speadsheet animated")
 
-    if args.debug:
+    if debug:
         plt.show()
     else:
         anim.save("recordings/ec-apportionment.mp4", writer=writer)
-
-
-if __name__ == "__main__":
-    main()
