@@ -1,12 +1,10 @@
 """Methods used to perform operations on datatypes or other mundane ops."""
 import csv
-import operator
 from typing import Callable
 
 from .types import CsvStateInfo, StateInfo, List, Tuple
 
 # TODO
-# - Use more pythonic code versus map
 
 
 def extract_csv(fname: str) -> List[CsvStateInfo]:
@@ -59,8 +57,7 @@ def extract_state_names(state_info_list: List[StateInfo]) -> List[str]:
     List[str]
         A list of all names
     """
-    state_names: List[str] = list(
-        map(operator.itemgetter("name"), state_info_list))
+    state_names: List[str] = [state["name"] for state in state_info_list]
 
     return state_names
 
@@ -78,8 +75,8 @@ def extract_pop_per_rep(state_info_list: List[StateInfo]) -> List[float]:
     List[float]
         A list of all ratios
     """
-    pop_per_rep_list: List[float] = list(
-        map(operator.itemgetter("pop_per_rep"), state_info_list))
+    pop_per_rep_list: List[float] = [state["pop_per_rep"]
+                                     for state in state_info_list]
 
     return pop_per_rep_list
 
@@ -97,8 +94,7 @@ def extract_reps(state_info_list: List[StateInfo]) -> List[int]:
     List[int]
         A list of all priority values
     """
-    reps_list: List[int] = list(
-        map(operator.itemgetter("reps"), state_info_list))
+    reps_list: List[int] = [state["reps"] for state in state_info_list]
 
     return reps_list
 
@@ -116,8 +112,8 @@ def extract_priority(state_info_list: List[StateInfo]) -> List[float]:
     List[float]
         A list of all priority values
     """
-    priority_list: List[float] = list(
-        map(operator.itemgetter("priority"), state_info_list))
+    priority_list: List[float] = [state["priority"]
+                                  for state in state_info_list]
 
     return priority_list
 

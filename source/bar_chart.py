@@ -1,6 +1,6 @@
 """Module for creating bar_chart animation."""
 # TODO
-# Move main() initialization to init_anim()
+# Refactor variables to init_anim() and animate()
 
 
 import math

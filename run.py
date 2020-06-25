@@ -3,11 +3,9 @@ Show an animation of the Huntington–Hill apportionment method.
 
 usage: python3.8 run.py [-h] -f FILE [-d]
 
-required arguments:
-  -f FILE, --file FILE  Path to CSV state population data
-
 optional arguments:
   -h, --help            show this help message and exit
+  -f FILE, --file FILE  Path to CSV state population data
   -d, --debug           Show the plot instead of writing to file
 
 """
