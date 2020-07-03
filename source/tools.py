@@ -1,10 +1,50 @@
 """Methods used to perform operations on datatypes or other mundane ops."""
 import csv
+import math
 from typing import Callable
 
-from .types import CsvStateInfo, StateInfo, List, Tuple
+from .types import CsvStateInfo, List, StateInfo, Tuple
 
 # TODO
+
+
+def parse_states(raw_csv: List[CsvStateInfo]) -> List[StateInfo]:
+    """Construct the dict object for each state.
+
+    Parameters
+    ----------
+    raw_csv : `List[SimpleStateInfo]`
+        The list of the population and name for each state
+
+    Returns
+    -------
+    `List[StateInfo]`
+        A list of the parsed attributes
+
+    """
+    max_priority: float = 0
+    state_info_list: List[StateInfo] = []
+    for row in raw_csv:
+        is_max = False
+        name = row[0]
+        pop = int(row[1])
+        reps = 1
+        pop_per_rep = pop / reps
+        fut_reps = reps + 1
+        priority = pop * (1 / math.sqrt(fut_reps * (fut_reps - 1)))
+
+        if priority > max_priority:
+            max_priority = priority
+            is_max = True
+
+        max_pri = is_max
+
+        state_info: StateInfo = StateInfo(name=name, pop=pop, reps=reps,
+                                          pop_per_rep=pop_per_rep,
+                                          priority=priority, max_pri=max_pri)
+
+        state_info_list.append(state_info)
+    return state_info_list
 
 
 def extract_csv(fname: str) -> List[CsvStateInfo]:

@@ -25,8 +25,8 @@ optional arguments:
 
 ## Running
 
--   Create `conda` env from spec-file.txt (see [Install Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html))
--   `pip` can also be configured with requirements.txt
+-   Create `conda` env from `environment.yml` (see [Install Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html))
+-   `requirements.txt` is just for GitHub dependency tracking.
 -   From the root of the folder,
 
 ```bash
