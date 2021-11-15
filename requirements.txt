@@ -38,7 +38,7 @@ numpy==1.18.1
 numpy-base==1.18.1
 openssl==1.1.1g
 pcre==8.43
-pip==20.0.2
+pip==21.1
 pydocstyle==4.0.1
 pylint==2.4.4
 pyparsing==2.4.6
