@@ -49,7 +49,7 @@ pytz==2020.1
 qt==5.9.7
 readline==8.0
 rope==0.16.0
-setuptools==46.1.1
+setuptools==65.5.1
 sip==4.19.13
 six==1.14.0
 snowballstemmer==2.0.0
