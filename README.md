@@ -9,7 +9,7 @@ See [Running](#running) for instructions on how to get started
 ## Usage
 
 ```bash
-usage: python3.8 source/bar_chart.py [-h] -f FILE [-d]
+usage: python source/bar_chart.py [-h] -f FILE [-d]
 
 Show an animation of the Huntington–Hill apportionment method
 
@@ -26,11 +26,10 @@ optional arguments:
 ## Running
 
 -   Create `conda` env from `environment.yml` (see [Install Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html))
--   `requirements.txt` is just for GitHub dependency tracking.
 -   From the root of the folder,
 
 ```bash
-python3.8 ./source/bar_chart.py -f ./data/state-populations.csv
+python ./source/bar_chart.py -f ./data/state-populations.csv
 ```
 
 -   The resulting video is put into ./recordings
